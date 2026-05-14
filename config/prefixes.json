@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "prefixes": [
+    {
+      "prefix": "di-",
+      "scope": "department",
+      "owner": "Data Infra",
+      "description": "DI department-wide skills, agents, and rules."
+    }
+  ],
+  "policy": {
+    "enforce": "warn",
+    "rationale": "Scaffold stage — unknown prefix is reported as a warning, not an error, until the first real skill lands. Flip to \"error\" once the prefix taxonomy stabilizes."
+  }
+}
