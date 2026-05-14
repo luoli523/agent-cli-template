@@ -9,7 +9,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = []
+dev = [
+    "pytest>=8.0",
+]
 
 [tool.di-cli]
 status = "scaffold"

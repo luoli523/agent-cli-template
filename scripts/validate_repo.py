@@ -59,6 +59,8 @@ KEBAB_CASE_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 SERVICE_DOC_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
 PERSONAL_PATH_RE = re.compile(r"(?<![A-Za-z0-9_./-])/Users/[A-Za-z0-9._-]+/")
 FRONTMATTER_RE = re.compile(r"\A---[ \t]*\r?\n(.*?)\r?\n---[ \t]*(?:\r?\n|\Z)", re.DOTALL)
+TRIGGER_MARKER_RE = re.compile(r"(?<!DO NOT )\bTRIGGER when:")
+DO_NOT_TRIGGER_MARKER_RE = re.compile(r"\bDO NOT TRIGGER when:")
 
 SECRET_PATTERNS = [
     (
@@ -81,7 +83,7 @@ SECRET_PATTERNS = [
         "hardcoded credential assignment",
         re.compile(
             r"""(?ix)
-            \b(token|api[_-]?key|secret|password|refresh[_-]?token|private[_-]?key|cookie)\b
+            ['"]?\b(token|api[_-]?key|secret|password|refresh[_-]?token|private[_-]?key|cookie)\b['"]?
             \s*[:=]\s*
             ['"]([^'"<>{}\s][^'"]{19,})['"]
             """
@@ -286,9 +288,9 @@ def validate_skills(root: Path, result: ValidationResult) -> None:
                 f"{skill_file.relative_to(root)}: name must match directory {child.name!r}"
             )
 
-        if description and "TRIGGER when:" not in description:
+        if description and not TRIGGER_MARKER_RE.search(description):
             result.error(f"{skill_file.relative_to(root)}: description missing 'TRIGGER when:'")
-        if description and "DO NOT TRIGGER when:" not in description:
+        if description and not DO_NOT_TRIGGER_MARKER_RE.search(description):
             result.error(
                 f"{skill_file.relative_to(root)}: description missing 'DO NOT TRIGGER when:'"
             )
@@ -382,9 +384,8 @@ def print_results(result: ValidationResult) -> int:
     return 0
 
 
-def main() -> int:
-    args = parse_args()
-    root = args.root.resolve()
+def validate_repository(root: Path) -> ValidationResult:
+    root = root.resolve()
 
     result = ValidationResult(errors=[], warnings=[])
     validate_root(root, result)
@@ -392,6 +393,12 @@ def main() -> int:
     validate_agents(root, result)
     validate_service_docs(root, result)
     validate_security(root, result)
+    return result
+
+
+def main() -> int:
+    args = parse_args()
+    result = validate_repository(args.root)
     return print_results(result)
 
 
