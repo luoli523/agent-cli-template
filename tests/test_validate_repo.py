@@ -239,6 +239,26 @@ def test_skills_directory_rejects_direct_files_and_non_kebab_names(tmp_path: Pat
     assert "skills/DataMapSkill: skill directory must be kebab-case" in text
 
 
+def test_skills_directory_allows_subdir_readmes(tmp_path: Path) -> None:
+    root = make_scaffold(tmp_path)
+    write(root / "skills/README.md", "# Skills\n")
+    write(root / "skills/README.zh-CN.md", "# 技能\n")
+
+    result = validate(root)
+
+    assert result.errors == []
+
+
+def test_agents_directory_allows_subdir_readmes(tmp_path: Path) -> None:
+    root = make_scaffold(tmp_path)
+    write(root / "agents/README.md", "# Agents\n")
+    write(root / "agents/README.zh-CN.md", "# Agents\n")
+
+    result = validate(root)
+
+    assert result.errors == []
+
+
 def test_agent_requires_description(tmp_path: Path) -> None:
     root = make_scaffold(tmp_path)
     write(root / "agents/service-reviewer.md", "---\nname: service-reviewer\nreadonly: true\n---\n")

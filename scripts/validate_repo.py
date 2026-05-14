@@ -57,6 +57,7 @@ TEXT_SUFFIXES = {
 
 KEBAB_CASE_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 SERVICE_DOC_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
+SUBDIR_README_FILES = frozenset({"README.md", "README.zh-CN.md"})
 PERSONAL_PATH_RE = re.compile(r"(?<![A-Za-z0-9_./-])/Users/[A-Za-z0-9._-]+/")
 FRONTMATTER_RE = re.compile(r"\A---[ \t]*\r?\n(.*?)\r?\n---[ \t]*(?:\r?\n|\Z)", re.DOTALL)
 TRIGGER_MARKER_RE = re.compile(r"(?<!DO NOT )\bTRIGGER when:")
@@ -261,6 +262,8 @@ def validate_skills(root: Path, result: ValidationResult) -> None:
     for child in sorted(skills_dir.iterdir()):
         if child.name == ".gitkeep":
             continue
+        if child.is_file() and child.name in SUBDIR_README_FILES:
+            continue
         if child.is_file():
             result.error(f"skills/{child.name}: files are not allowed directly under skills/")
             continue
@@ -307,6 +310,8 @@ def validate_agents(root: Path, result: ValidationResult) -> None:
 
     for child in sorted(agents_dir.iterdir()):
         if child.name == ".gitkeep":
+            continue
+        if child.is_file() and child.name in SUBDIR_README_FILES:
             continue
         if child.is_dir():
             result.error(f"agents/{child.name}: agent entries must be markdown files")
