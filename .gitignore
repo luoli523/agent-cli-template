@@ -1,0 +1,22 @@
+# Python virtual environments and package caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local DI Toolkit runtime state
+.di-toolkit/
+.di-cli/
+auth.json
+credentials.json
+*.local.json
+*.local.toml
+*.local.yaml
+*.local.yml
+
+# Editor and OS noise
+.DS_Store
+.idea/
+.vscode/
