@@ -60,6 +60,18 @@ The validation script uses `.venv/bin/python`, which is created by `uv sync`. It
 
 Do not claim validation has passed unless the relevant checks were actually run.
 
+## Continuous Integration
+
+GitLab CI runs the same checks on every merge request and on every push to `main`. The pipeline is defined in `.gitlab-ci.yml` and uses `python:3.13-slim`. Locally reproduce a CI failure with:
+
+```bash
+uv sync --frozen
+bash scripts/validate.sh
+uv run pytest tests/ -q
+```
+
+If `bash scripts/validate.sh` or `uv run pytest tests/` fails locally, the pipeline will fail too. Fix the issue locally — do not push hoping the remote behaves differently.
+
 ## Skills
 
 A real skill must live at `skills/<name>/SKILL.md`.

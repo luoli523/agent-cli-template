@@ -1,0 +1,37 @@
+# GitLab CI for di-cli
+#
+# Runs the convention validator and pytest on every merge request and on
+# every push to main. Mirrors the local commands documented in
+# CONTRIBUTING.md so contributors can reproduce CI failures locally.
+
+stages:
+  - validate
+
+default:
+  image: python:3.13-slim
+  tags:
+    - docker
+  interruptible: true
+
+variables:
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PIP_NO_CACHE_DIR: "1"
+  UV_LINK_MODE: copy
+
+validate:
+  stage: validate
+  before_script:
+    - pip install uv
+    - uv sync --frozen
+  script:
+    - bash scripts/validate.sh
+    - uv run pytest tests/ -q
+  cache:
+    key:
+      files:
+        - uv.lock
+    paths:
+      - .venv/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
