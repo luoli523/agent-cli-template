@@ -17,6 +17,8 @@ try:
 except ImportError:  # pragma: no cover - exercised only when dependency is missing.
     yaml = None  # type: ignore[assignment]
 
+import json
+
 
 ROOT_FILES = [
     "CLAUDE.md",
@@ -54,6 +56,8 @@ TEXT_SUFFIXES = {
     ".yaml",
     ".yml",
 }
+
+DESCRIPTION_MAX_CHARS = 1024
 
 KEBAB_CASE_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 SERVICE_DOC_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
@@ -237,6 +241,24 @@ def is_true(value: Any) -> bool:
     return False
 
 
+def load_prefixes(root: Path) -> tuple[set[str], str]:
+    """Return (known_prefix_strings, enforce_policy) from config/prefixes.json.
+
+    Returns (empty set, "warn") if the file is absent or malformed, so callers
+    silently skip the prefix check rather than crashing.
+    """
+    prefixes_path = root / "config" / "prefixes.json"
+    if not prefixes_path.is_file():
+        return set(), "warn"
+    try:
+        data = json.loads(prefixes_path.read_text(encoding="utf-8"))
+        known = {entry["prefix"] for entry in data.get("prefixes", []) if "prefix" in entry}
+        enforce = data.get("policy", {}).get("enforce", "warn")
+        return known, enforce
+    except (json.JSONDecodeError, TypeError, KeyError):
+        return set(), "warn"
+
+
 def validate_root(root: Path, result: ValidationResult) -> None:
     for rel in ROOT_FILES:
         path = root / rel
@@ -261,6 +283,8 @@ def validate_skills(root: Path, result: ValidationResult) -> None:
     skills_dir = root / "skills"
     if not skills_dir.is_dir():
         return
+
+    known_prefixes, enforce = load_prefixes(root)
 
     for child in sorted(skills_dir.iterdir()):
         if child.name == ".gitkeep":
@@ -294,12 +318,29 @@ def validate_skills(root: Path, result: ValidationResult) -> None:
                 f"{skill_file.relative_to(root)}: name must match directory {child.name!r}"
             )
 
-        if description and not TRIGGER_MARKER_RE.search(description):
-            result.error(f"{skill_file.relative_to(root)}: description missing 'TRIGGER when:'")
-        if description and not DO_NOT_TRIGGER_MARKER_RE.search(description):
-            result.error(
-                f"{skill_file.relative_to(root)}: description missing 'DO NOT TRIGGER when:'"
-            )
+        if name and known_prefixes:
+            if not any(name.startswith(p) for p in known_prefixes):
+                msg = (
+                    f"{skill_file.relative_to(root)}: skill name {name!r} does not start with"
+                    f" a known prefix ({', '.join(sorted(known_prefixes))})"
+                )
+                if enforce == "error":
+                    result.error(msg)
+                else:
+                    result.warn(msg)
+
+        if description:
+            if len(description) > DESCRIPTION_MAX_CHARS:
+                result.error(
+                    f"{skill_file.relative_to(root)}: description exceeds"
+                    f" {DESCRIPTION_MAX_CHARS} characters ({len(description)} chars)"
+                )
+            if not TRIGGER_MARKER_RE.search(description):
+                result.error(f"{skill_file.relative_to(root)}: description missing 'TRIGGER when:'")
+            if not DO_NOT_TRIGGER_MARKER_RE.search(description):
+                result.error(
+                    f"{skill_file.relative_to(root)}: description missing 'DO NOT TRIGGER when:'"
+                )
 
         for nested in child.rglob("*"):
             if nested.is_dir() and nested.name == "SKILL.md":
@@ -336,8 +377,26 @@ def validate_agents(root: Path, result: ValidationResult) -> None:
         if name and name != child.stem:
             result.error(f"{child.relative_to(root)}: name must match filename {child.stem!r}")
 
-        if not is_true(fields.get("readonly")):
+        # strict type checks for optional agent frontmatter fields
+        tools = fields.get("tools")
+        if tools is not None:
+            if not isinstance(tools, list) or not all(isinstance(t, str) for t in tools):
+                result.error(
+                    f"{child.relative_to(root)}: 'tools' must be a list of strings"
+                )
+
+        readonly = fields.get("readonly")
+        if readonly is not None:
+            if not isinstance(readonly, bool):
+                result.error(
+                    f"{child.relative_to(root)}: 'readonly' must be a boolean (true or false)"
+                )
+        if not is_true(readonly):
             result.warn(f"{child.relative_to(root)}: readonly: true is recommended")
+
+        model = fields.get("model")
+        if model is not None and not isinstance(model, str):
+            result.error(f"{child.relative_to(root)}: 'model' must be a string")
 
 
 def validate_service_docs(root: Path, result: ValidationResult) -> None:

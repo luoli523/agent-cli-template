@@ -361,6 +361,150 @@ def test_security_scan_rejects_sensitive_patterns(
     assert expected in messages(result)
 
 
+# ---------------------------------------------------------------------------
+# Prefix checks
+# ---------------------------------------------------------------------------
+
+def make_prefixes_json(root: Path, prefixes: list[str], enforce: str = "warn") -> None:
+    data = {
+        "version": 1,
+        "prefixes": [{"prefix": p} for p in prefixes],
+        "policy": {"enforce": enforce},
+    }
+    write(root / "config" / "prefixes.json", __import__("json").dumps(data))
+
+
+def test_skill_known_prefix_passes(tmp_path: Path) -> None:
+    root = make_scaffold(tmp_path)
+    make_prefixes_json(root, ["di-"])
+    write(root / "skills/di-sample/SKILL.md", valid_skill("di-sample"))
+
+    result = validate(root)
+
+    assert result.errors == []
+    assert not any("prefix" in w for w in result.warnings)
+
+
+def test_skill_unknown_prefix_warns_when_policy_is_warn(tmp_path: Path) -> None:
+    root = make_scaffold(tmp_path)
+    make_prefixes_json(root, ["di-"], enforce="warn")
+    write(root / "skills/datamap-lineage/SKILL.md", valid_skill())
+
+    result = validate(root)
+
+    assert result.errors == []
+    assert any("known prefix" in w for w in result.warnings)
+
+
+def test_skill_unknown_prefix_errors_when_policy_is_error(tmp_path: Path) -> None:
+    root = make_scaffold(tmp_path)
+    make_prefixes_json(root, ["di-"], enforce="error")
+    write(root / "skills/datamap-lineage/SKILL.md", valid_skill())
+
+    result = validate(root)
+
+    assert any("known prefix" in e for e in result.errors)
+
+
+def test_skill_prefix_check_skipped_when_no_prefixes_json(tmp_path: Path) -> None:
+    root = make_scaffold(tmp_path)
+    # no config/prefixes.json written
+    write(root / "skills/datamap-lineage/SKILL.md", valid_skill())
+
+    result = validate(root)
+
+    assert result.errors == []
+    assert not any("prefix" in w for w in result.warnings)
+
+
+# ---------------------------------------------------------------------------
+# Description length checks
+# ---------------------------------------------------------------------------
+
+def test_skill_description_exactly_at_limit_passes(tmp_path: Path) -> None:
+    root = make_scaffold(tmp_path)
+    # build a description that is exactly 1024 chars with the required markers
+    base = "X" * (1024 - len("S. TRIGGER when: T. DO NOT TRIGGER when: D."))
+    desc = base + "S. TRIGGER when: T. DO NOT TRIGGER when: D."
+    assert len(desc) == 1024
+    frontmatter = f"---\nname: datamap-lineage\nmaintainer:\n  - a@b.com\ndescription: '{desc}'\n---\n"
+    write(root / "skills/datamap-lineage/SKILL.md", frontmatter)
+
+    result = validate(root)
+
+    assert not any("exceeds" in e for e in result.errors)
+
+
+def test_skill_description_over_limit_errors(tmp_path: Path) -> None:
+    root = make_scaffold(tmp_path)
+    long_desc = "X" * 1025
+    frontmatter = (
+        f"---\nname: datamap-lineage\nmaintainer:\n  - a@b.com\n"
+        f"description: '{long_desc} TRIGGER when: T. DO NOT TRIGGER when: D.'\n---\n"
+    )
+    write(root / "skills/datamap-lineage/SKILL.md", frontmatter)
+
+    result = validate(root)
+
+    assert any("exceeds" in e for e in result.errors)
+
+
+# ---------------------------------------------------------------------------
+# Agent frontmatter strict type checks
+# ---------------------------------------------------------------------------
+
+def test_agent_tools_must_be_list_of_strings(tmp_path: Path) -> None:
+    root = make_scaffold(tmp_path)
+    write(root / "agents/my-agent.md", "---\nname: my-agent\ndescription: desc.\ntools: Read\nreadonly: true\n---\n")
+
+    result = validate(root)
+
+    assert any("'tools' must be a list" in e for e in result.errors)
+
+
+def test_agent_tools_list_of_strings_passes(tmp_path: Path) -> None:
+    root = make_scaffold(tmp_path)
+    write(root / "agents/my-agent.md", "---\nname: my-agent\ndescription: desc.\ntools:\n  - Read\n  - Grep\nreadonly: true\n---\n")
+
+    result = validate(root)
+
+    assert not any("tools" in e for e in result.errors)
+
+
+def test_agent_readonly_must_be_bool(tmp_path: Path) -> None:
+    root = make_scaffold(tmp_path)
+    write(root / "agents/my-agent.md", '---\nname: my-agent\ndescription: desc.\nreadonly: "yes"\n---\n')
+
+    result = validate(root)
+
+    assert any("'readonly' must be a boolean" in e for e in result.errors)
+
+
+def test_agent_model_must_be_string(tmp_path: Path) -> None:
+    root = make_scaffold(tmp_path)
+    write(root / "agents/my-agent.md", "---\nname: my-agent\ndescription: desc.\nmodel: 42\nreadonly: true\n---\n")
+
+    result = validate(root)
+
+    assert any("'model' must be a string" in e for e in result.errors)
+
+
+def test_agent_valid_optional_fields_pass(tmp_path: Path) -> None:
+    root = make_scaffold(tmp_path)
+    write(
+        root / "agents/my-agent.md",
+        "---\nname: my-agent\ndescription: desc.\ntools:\n  - Read\nmodel: opus\nreadonly: true\n---\n",
+    )
+
+    result = validate(root)
+
+    assert result.errors == []
+
+
+# ---------------------------------------------------------------------------
+# Security scan exclusions
+# ---------------------------------------------------------------------------
+
 def test_tool_config_dirs_are_excluded_from_security_scan(tmp_path: Path) -> None:
     root = make_scaffold(tmp_path)
     # AI tool local settings may contain absolute paths — they must not be scanned.
