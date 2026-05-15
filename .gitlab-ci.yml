@@ -1,8 +1,9 @@
 # GitLab CI for di-cli
 #
-# Runs the convention validator and pytest on every merge request and on
-# every push to main. Mirrors the local commands documented in
-# CONTRIBUTING.md so contributors can reproduce CI failures locally.
+# Runs the convention validator and pytest on every merge request.
+# Direct pushes to main are blocked via GitLab protected branch rules.
+# Mirrors the local commands documented in CONTRIBUTING.md so contributors
+# can reproduce CI failures locally.
 
 stages:
   - validate
@@ -32,4 +33,3 @@ validate:
       - .venv/
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == "main"
