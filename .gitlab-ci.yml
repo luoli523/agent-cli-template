@@ -9,8 +9,6 @@ stages:
 
 default:
   image: python:3.13-slim
-  tags:
-    - docker
   interruptible: true
 
 variables:
