@@ -361,6 +361,17 @@ def test_security_scan_rejects_sensitive_patterns(
     assert expected in messages(result)
 
 
+def test_tool_config_dirs_are_excluded_from_security_scan(tmp_path: Path) -> None:
+    root = make_scaffold(tmp_path)
+    # AI tool local settings may contain absolute paths — they must not be scanned.
+    for tool_dir in (".claude", ".cursor", ".codex"):
+        write(root / tool_dir / "settings.local.json", '{"allow": ["/' + 'Users/alice/project"]}\n')
+
+    result = validate(root)
+
+    assert result.errors == []
+
+
 def test_placeholder_credentials_pass(tmp_path: Path) -> None:
     root = make_scaffold(tmp_path)
     write(root / "config/example.json", '{"token": "<fill-me>", "client_id": "<google-oauth-client-id>"}\n')

@@ -154,3 +154,23 @@ Reviewers should check:
 - no credentials or personal environment assumptions are present
 
 Contribution rules are part of the product. If you change the rules, update the docs and validator in the same approved batch.
+
+## Git Hooks (Optional)
+
+The `.githooks/` directory contains a `pre-commit` hook that runs `bash scripts/validate.sh` before every commit. It is **opt-in** — git does not load it automatically.
+
+To enable:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+To disable:
+
+```bash
+git config --unset core.hooksPath
+```
+
+If `.venv` is not present when the hook runs, it prints a warning and exits 0 (does not block the commit). Run `uv sync` to enable the full check.
+
+Do not use `git commit --no-verify` to bypass the hook. If the hook fails, fix the root cause and recommit.

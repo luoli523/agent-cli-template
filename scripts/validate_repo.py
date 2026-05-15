@@ -130,10 +130,13 @@ def is_text_file(path: Path) -> bool:
     return path.suffix in TEXT_SUFFIXES
 
 
+SCAN_SKIP_DIRS = frozenset({".git", ".claude", ".cursor", ".codex", ".venv"})
+
+
 def iter_repo_files(root: Path) -> list[Path]:
     files: list[Path] = []
     for path in root.rglob("*"):
-        if ".git" in path.parts:
+        if SCAN_SKIP_DIRS.intersection(path.parts):
             continue
         if path.is_file() or path.is_symlink():
             files.append(path)
