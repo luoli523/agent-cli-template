@@ -108,8 +108,8 @@ Prefixes are declared in [`config/prefixes.json`](../config/prefixes.json), whic
 
 `config/prefixes.json` carries a `policy.enforce` field:
 
-- `"warn"` (current default) — unknown prefix is a validator warning, not an error.
-- `"error"` — unknown prefix fails the build. Switch only after the prefix taxonomy stabilizes.
+- `"error"` (current) — skill names without a declared prefix fail validation.
+- `"warn"` — unknown prefix emits a validator warning but does not block. Useful during early scaffolding; flip back to `"error"` once the taxonomy stabilizes.
 
 To add a new prefix, open a proposal in `docs/decisions/` first; do not modify `config/prefixes.json` unilaterally.
 

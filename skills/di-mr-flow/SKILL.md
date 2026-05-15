@@ -63,7 +63,7 @@ Commit format follows `rules/git-workflow.md`:
 
 ```bash
 git add <specific files>        # avoid `git add -A` when possible
-git commit -m "feat(skills): add datamap-lineage skill" \
+git commit -m "feat(skills): add di-datamap-lineage skill" \
            -m "Provides table metadata, lineage, and owner lookup for the DataMap (数据地图) platform. Triggered by \"DataMap\", \"lineage\", or \"血缘\". Credentials template added under config/."
 ```
 
@@ -92,14 +92,14 @@ glab mr create \
   --target-branch main \
   --squash-before-merge \
   --remove-source-branch \
-  --title "feat(skills): add datamap-lineage skill" \
+  --title "feat(skills): add di-datamap-lineage skill" \
   --description "$(cat <<'EOF'
 ## Summary
-- Adds skills/datamap-lineage with read-only metadata, lineage, and owner lookups.
+- Adds skills/di-datamap-lineage with read-only metadata, lineage, and owner lookups.
 - Credentials template under config/credentials.template.json gains a `datamap.token` entry.
 
 ## Why
-First real skill landing on top of the v0.1 scaffold. Validates the prefix policy (`di-` → unknown DataMap prefix warns, expected) and exercises the contribution checklist end-to-end.
+First real skill landing on top of the v0.1 scaffold. Exercises the contribution checklist end-to-end and the prefix policy (`di-` taxonomy is enforced; the skill name conforms).
 
 ## Test plan
 - [x] bash scripts/validate.sh

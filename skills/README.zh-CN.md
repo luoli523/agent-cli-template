@@ -108,8 +108,8 @@ credentials:                 # 该 skill 期望在 ~/.config/di/credentials.json
 
 `config/prefixes.json` 的 `policy.enforce` 字段控制校验级别：
 
-- `"warn"`（当前默认）——未知前缀仅是 validator 的 warning，不阻塞。
-- `"error"`——未知前缀直接失败。等前缀分类稳定后再切换。
+- `"error"`（当前）——未声明前缀的 skill 名直接失败。
+- `"warn"`——未知前缀仅是 validator 的 warning，不阻塞。早期 scaffold 阶段可用；前缀分类稳定后切回 `"error"`。
 
 新增前缀请先在 `docs/decisions/` 写一份提案，**不要**直接动 `config/prefixes.json`。
 

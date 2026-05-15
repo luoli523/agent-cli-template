@@ -9,7 +9,7 @@
     }
   ],
   "policy": {
-    "enforce": "warn",
-    "rationale": "Scaffold stage — unknown prefix is reported as a warning, not an error, until the first real skill lands. Flip to \"error\" once the prefix taxonomy stabilizes."
+    "enforce": "error",
+    "rationale": "Strict mode — skill names without a declared prefix fail validation. Add a new prefix entry above (and an ADR in docs/decisions/) before introducing a skill outside the declared taxonomy."
   }
 }
