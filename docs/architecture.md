@@ -15,7 +15,7 @@ The repository ships conventions and samples. No real service integrations or ru
 ```
 di-cli/
   skills/            On-demand knowledge modules (currently empty — samples pending)
-  agents/            Sub-agent definitions (planner, code-reviewer)
+  agents/            Empty placeholder; sample sub-agents removed pending Codex compatibility decision
   contexts/          Work-mode presets (dev, review, oncall)
   rules/             Always-loaded guidelines (git-workflow)
   config/            Prefix taxonomy and credential templates
@@ -42,11 +42,9 @@ Rules:
 
 ### agents/
 
-Sub-agents with restricted tool access. Each agent is a single markdown file (`agents/<name>.md`) with YAML frontmatter. Agents run as separate entities — not injected into the main conversation like skills.
+Sub-agents with restricted tool access. Intended as single markdown files (`agents/<name>.md`) with YAML frontmatter, run as separate entities — not injected into the main conversation like skills.
 
-Current agents:
-- `planner`: read-only implementation planner (Read, Grep, Glob / opus).
-- `code-reviewer`: convention-focused reviewer with read-only git access (Read, Grep, Glob, Bash / sonnet).
+**Current state: empty placeholder.** The initial samples (`planner`, `code-reviewer`) were authored as Markdown agents, on the assumption that Claude Code and Codex consume the same file. Investigation showed Codex sub-agents use a different schema (TOML at `~/.codex/agents/*.toml`), so Markdown agents are Claude Code only. Until we decide whether to ship parallel TOML mirrors, generate them from a source format, or stop attempting Codex agent parity, no samples ship. The validator and frontmatter conventions remain in place so future agents can land without re-deciding the format.
 
 ### contexts/
 
