@@ -9,12 +9,12 @@ This repository is still in its scaffold stage. Contributions must be conservati
 Supported contribution areas:
 
 - `skills/`: DI workflows, service operations, troubleshooting playbooks, and helper scripts for AI assistants.
-- `agents/`: focused assistant agents with clear scope and least-privilege behavior.
+- `agents/`: focused assistant agents (currently empty placeholder; see `agents/README.md`).
 - `docs/services/`: service owner docs, API notes, onboarding guides, and operational runbooks.
-- `mcp/`: sample MCP patterns and future MCP server work after design approval.
+- `mcp/`: MCP server patterns (currently empty placeholder; see `mcp/README.md`). First contribution requires a reviewed ADR.
 - `config/`: templates for profiles, prefixes, and credentials. Templates only.
 - `scripts/`: repository maintenance, validation, install, and doctor utilities.
-- `contexts/` and `rules/`: optional assistant behavior presets and always-follow rules.
+- `contexts/` and `rules/`: optional assistant behavior presets and always-follow rules (currently empty placeholders; see each directory's `README.md`).
 
 If a contribution does not fit one of these areas, write a short proposal in `docs/decisions/` before implementing it.
 
@@ -117,7 +117,7 @@ Each service doc should include:
 
 ## MCP Contributions
 
-`mcp/sample/` is the only MCP area enabled during the scaffold stage.
+`mcp/` is the MCP staging area; it is currently an empty placeholder.
 
 Before adding a real MCP server or real production service integration, first write a design note that covers:
 

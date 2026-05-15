@@ -32,7 +32,7 @@ REQUIRED_DIRS = [
     "cli",
     "skills",
     "agents",
-    "mcp/sample",
+    "mcp",
     "docs/services",
     "docs/decisions",
     "docs/contribution",
