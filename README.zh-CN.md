@@ -1,8 +1,8 @@
-# di-cli
+# di-cli-internal
 
 > **Language**: [English](README.md) | [中文](README.zh-CN.md)
 
-`di-cli` 是面向 Data Infra 内部开发者、service owner、业务团队和 on-call 工程师的共享 DI Toolkit。
+`di-cli-internal` 是面向 Data Infra 内部开发者、service owner、业务团队和 on-call 工程师的共享 DI Toolkit。
 
 这个项目希望把 DI 内部各团队自用、各自维护的 AI 工具集逐步收拢到一个可共同维护的仓库里：skills、agents、service 文档、rules、contexts、MCP 模式，以及未来的 Python CLI 工具。认证也会集中管理，避免每个团队或每个 skill 重复实现登录和凭证处理。
 
