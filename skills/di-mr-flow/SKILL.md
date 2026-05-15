@@ -12,7 +12,7 @@ description: >
 
 End-to-end runbook for landing a change in di-cli. `main` is a protected branch, so every change — even a one-line fix — flows through a feature branch and a GitLab merge request.
 
-This skill assumes the contributor has already followed the rest of di-cli's working rules (`CLAUDE.md`, `rules/git-workflow.md`, `CONTRIBUTING.md`) for things like batch size discipline and commit-message style.
+This skill assumes the contributor has already followed the rest of di-cli's working conventions (`CLAUDE.md`, `CONTRIBUTING.md`) for things like batch size discipline. Commit message and branch naming conventions are inlined in the relevant sections below.
 
 ## Tools you need
 
@@ -37,7 +37,7 @@ If `.githooks/` is not enabled, the pre-commit check at commit time becomes a no
 
 ## 1. Branch
 
-Branch name follows `rules/git-workflow.md`:
+Branch name pattern:
 
 ```text
 <username>/<type>/<description>
@@ -55,7 +55,7 @@ Create the branch **before** editing files when possible — it keeps the workin
 
 ## 2. Commit
 
-Commit format follows `rules/git-workflow.md`:
+Commit format:
 
 - `<type>(<scope>): <description>` or `<type>: <description>`
 - Imperative mood, first line ≤ 72 characters.
@@ -104,7 +104,7 @@ First real skill landing on top of the v0.1 scaffold. Exercises the contribution
 ## Test plan
 - [x] bash scripts/validate.sh
 - [x] uv run pytest tests/
-- [ ] Reviewer: spot-check SKILL.md against rules/git-workflow.md + skills/README.md
+- [ ] Reviewer: spot-check SKILL.md against CONTRIBUTING.md + skills/README.md
 EOF
 )"
 ```

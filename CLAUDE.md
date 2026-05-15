@@ -28,12 +28,12 @@ This repository should be independently useful as the DI Toolkit. Keep the first
 ```text
 cli/                 Future Python CLI implementation.
 skills/              On-demand DI skills loaded by AI assistants.
-agents/              Claude Code and Codex compatible agent definitions.
-mcp/sample/          Placeholder MCP example area for future patterns.
+agents/              Sub-agent definitions (empty placeholder; see agents/README.md).
+mcp/                 MCP server patterns (empty placeholder; see mcp/README.md).
 docs/services/       Service-level docs owned by service teams.
 docs/decisions/      Architecture Decision Records.
-rules/               Optional always-follow rules.
-contexts/            Work-mode prompts.
+rules/               Always-follow rules (empty placeholder; see rules/README.md).
+contexts/            Work-mode prompts (empty placeholder; see contexts/README.md).
 config/              Profiles, prefixes, and credential templates.
 scripts/             Install, validate, and doctor scripts.
 tests/               Convention and scaffold checks.
@@ -99,7 +99,7 @@ readonly: true
 
 ## MCP
 
-`mcp/sample/` is a placeholder area for early examples. A real MCP contribution must document:
+`mcp/` is an empty placeholder area. The first MCP contribution requires a reviewed design (an ADR under `docs/decisions/`) and must document:
 
 - Tool purpose and expected user workflow.
 - Authentication and identity propagation.

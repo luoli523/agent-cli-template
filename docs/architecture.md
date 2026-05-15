@@ -10,21 +10,21 @@ It is **not** a production service, a data pipeline, or an SDK. It is a knowledg
 
 ## Current State (Scaffold Stage)
 
-The repository ships conventions and samples. No real service integrations or runtime installers exist yet.
+The repository ships conventions plus one real skill (`di-mr-flow`). All other extension directories are intentional placeholders — the team adds content there only when a real need shows up.
 
 ```
 di-cli/
-  skills/            On-demand knowledge modules (currently empty — samples pending)
-  agents/            Empty placeholder; sample sub-agents removed pending Codex compatibility decision
-  contexts/          Work-mode presets (dev, review, oncall)
-  rules/             Always-loaded guidelines (git-workflow)
+  skills/            On-demand knowledge modules (1 real: di-mr-flow)
+  agents/            Empty placeholder; see agents/README.md
+  contexts/          Empty placeholder; see contexts/README.md
+  rules/             Empty placeholder; see rules/README.md
+  mcp/               Empty placeholder; see mcp/README.md
   config/            Prefix taxonomy and credential templates
   scripts/           validate.sh + validate_repo.py
   tests/             pytest convention checks
   .githooks/         opt-in pre-commit hook
   docs/              Architecture, decisions, specs, service docs
   cli/               Placeholder for future Python CLI
-  mcp/sample/        Placeholder for future MCP server patterns
 ```
 
 ## Component Responsibilities
@@ -42,17 +42,19 @@ Rules:
 
 ### agents/
 
-Sub-agents with restricted tool access. Intended as single markdown files (`agents/<name>.md`) with YAML frontmatter, run as separate entities — not injected into the main conversation like skills.
-
-**Current state: empty placeholder.** The initial samples (`planner`, `code-reviewer`) were authored as Markdown agents, on the assumption that Claude Code and Codex consume the same file. Investigation showed Codex sub-agents use a different schema (TOML at `~/.codex/agents/*.toml`), so Markdown agents are Claude Code only. Until we decide whether to ship parallel TOML mirrors, generate them from a source format, or stop attempting Codex agent parity, no samples ship. The validator and frontmatter conventions remain in place so future agents can land without re-deciding the format.
+Sub-agents with restricted tool access. **Empty placeholder.** Cross-tool format is unresolved: Claude Code uses Markdown + YAML frontmatter at `~/.claude/agents/<name>.md`; Codex uses TOML at `~/.codex/agents/<name>.toml`. Until the team decides whether to ship parallel files, generate them, or pick one tool, no samples ship. See `agents/README.md` for the authoring contract and validator behavior.
 
 ### contexts/
 
-System-prompt presets injected at session start. Not YAML-fronted; plain markdown. Three modes: `dev`, `review`, `oncall`. Users install by aliasing `claude --system-prompt "$(cat ...)"`.
+System-prompt presets injected at session start. **Empty placeholder.** No contexts ship yet — see `contexts/README.md` for when to add one and the recommended format.
 
 ### rules/
 
-Always-loaded guidelines. Currently one rule: `git-workflow.md`. Users opt in by symlinking to `~/.claude/rules/` or `~/.codex/rules/`. Rules are **not** auto-installed.
+Always-loaded guidelines for Claude Code (`~/.claude/rules/`) and Codex (appended to `~/.codex/AGENTS.md`). **Empty placeholder.** No rules ship yet — see `rules/README.md` for install styles and authoring conventions.
+
+### mcp/
+
+MCP server patterns. **Empty placeholder.** The first contribution requires a reviewed ADR — see `mcp/README.md` and `CONTRIBUTING.md` § MCP Contributions.
 
 ### config/
 
@@ -88,11 +90,14 @@ The following are documented as planned in `CLAUDE.md`. Do not reference them as
 ## Boundaries
 
 **In scope for scaffold stage:**
-- Convention documentation (READMEs, CLAUDE.md, CONTRIBUTING.md).
-- Sample agents, contexts, rules.
+- Convention documentation (per-directory READMEs, CLAUDE.md, CONTRIBUTING.md).
+- One real skill (`di-mr-flow`) exercising the full MR workflow end-to-end.
 - Validator and git hooks.
 - Credential and prefix templates.
 - Architecture and decision records.
+
+**Intentional placeholders (filled when real consumers appear):**
+- `agents/`, `contexts/`, `rules/`, `mcp/` — see each directory's README.
 
 **Out of scope until explicitly approved:**
 - Real service integrations (any `skills/<name>/scripts/` calling a production API).
