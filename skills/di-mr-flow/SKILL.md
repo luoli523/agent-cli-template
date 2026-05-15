@@ -69,17 +69,7 @@ git commit -m "feat(skills): add datamap-lineage skill" \
 
 When `core.hooksPath` is set to `.githooks/`, `pre-commit` runs `bash scripts/validate.sh` automatically. A failing validator blocks the commit; **do not** use `--no-verify` to bypass — fix the root cause.
 
-## 3. Optional: self-review with code-reviewer agent
-
-Before pushing, you can ask the bundled `code-reviewer` agent to inspect what you are about to ship:
-
-```text
-@code-reviewer review the staged changes
-```
-
-It produces a severity-grouped report (🔴 blocking / 🟡 warning / 🟢 nit). Treat it as a pre-screen; the human MR reviewer still has the final say.
-
-## 4. Push
+## 3. Push
 
 ```bash
 git push -u origin li.luo/feat/add-datamap-skill
@@ -95,7 +85,7 @@ git config --global credential.helper osxkeychain   # macOS
 
 GitLab requires a Personal Access Token (with `read_repository` + `write_repository` scopes) — generate one at <https://git.garena.com/-/profile/personal_access_tokens> and use it as the password the first time. The keychain caches it after that.
 
-## 5. Open MR via glab
+## 4. Open MR via glab
 
 ```bash
 glab mr create \
@@ -122,13 +112,13 @@ EOF
 Notes:
 
 - `--squash-before-merge` keeps `main` history clean — one squashed commit per MR.
-- `--remove-source-branch` deletes the feature branch on the remote after merge; combine with the local cleanup in step 8.
+- `--remove-source-branch` deletes the feature branch on the remote after merge; combine with the local cleanup in step 7.
 - Use a HEREDOC for the description to preserve formatting (titles, lists, checkboxes).
 - The description should always include three sections: **Summary** (what changed), **Why** (motivation), **Test plan** (how to verify). Reviewers rely on these.
 
 `glab` prints the MR URL on success — record it.
 
-## 6. CI
+## 5. CI
 
 The pipeline defined in `.gitlab-ci.yml` runs automatically on every MR. It installs deps via `uv sync --frozen --extra dev` and then runs `bash scripts/validate.sh` followed by `uv run pytest tests/`.
 
@@ -146,7 +136,7 @@ If CI is red:
 
 Never merge a red pipeline. If CI is failing for reasons unrelated to your change (flaky test, infra outage), pause and escalate rather than bypass.
 
-## 7. Merge
+## 6. Merge
 
 After CI is green and the human reviewer has approved:
 
@@ -159,7 +149,7 @@ glab mr merge <mr-id> --squash --yes
 
 The remote feature branch is auto-deleted because the MR was created with `--remove-source-branch`.
 
-## 8. Cleanup
+## 7. Cleanup
 
 ```bash
 git checkout main
