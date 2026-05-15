@@ -1,4 +1,4 @@
-# di-cli
+# di-cli-internal
 
 > **Language**: [English](README.md) | [中文](README.zh-CN.md)
 
