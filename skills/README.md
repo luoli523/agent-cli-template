@@ -113,6 +113,12 @@ Prefixes are declared in [`config/prefixes.json`](../config/prefixes.json), whic
 
 To add a new prefix, open a proposal in `docs/decisions/` first; do not modify `config/prefixes.json` unilaterally.
 
+## Available Skills
+
+| Skill | Purpose |
+|-------|---------|
+| [`di-mr-flow`](di-mr-flow/SKILL.md) | Branch → commit → push → GitLab MR → CI → squash-merge → cleanup. Triggered by "open MR", "提 MR", "merge this". |
+
 ## Validation
 
 ```bash
