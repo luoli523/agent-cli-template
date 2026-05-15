@@ -65,7 +65,7 @@ Do not claim validation has passed unless the relevant checks were actually run.
 GitLab CI runs the same checks on every merge request and on every push to `main`. The pipeline is defined in `.gitlab-ci.yml` and uses `python:3.13-slim`. Locally reproduce a CI failure with:
 
 ```bash
-uv sync --frozen
+uv sync --frozen --extra dev
 bash scripts/validate.sh
 uv run pytest tests/ -q
 ```

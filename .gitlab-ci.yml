@@ -20,7 +20,7 @@ validate:
   stage: validate
   before_script:
     - pip install uv
-    - uv sync --frozen
+    - uv sync --frozen --extra dev
   script:
     - bash scripts/validate.sh
     - uv run pytest tests/ -q
