@@ -113,6 +113,12 @@ credentials:                 # 该 skill 期望在 ~/.config/di/credentials.json
 
 新增前缀请先在 `docs/decisions/` 写一份提案，**不要**直接动 `config/prefixes.json`。
 
+## 已有 Skill
+
+| Skill | 用途 |
+|-------|------|
+| [`di-mr-flow`](di-mr-flow/SKILL.md) | 分支 → commit → push → GitLab MR → CI → squash 合入 → 清理。触发词："open MR"、"提 MR"、"merge this"。 |
+
 ## 校验
 
 ```bash
