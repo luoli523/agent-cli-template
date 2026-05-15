@@ -1,5 +1,7 @@
 # di-cli
 
+> **Language**: [English](README.md) | [中文](README.zh-CN.md)
+
 `di-cli` 是面向 Data Infra 内部开发者、service owner 和 on-call 工程师的 DI Toolkit。
 
 这个项目会把 DI 内部 AI 助手能力整理成一个可共同维护的仓库：skills、agents、MCP 示例、service 文档、rules、contexts，以及未来的 Python CLI 工具。当前阶段先搭建项目骨架和贡献边界，不接入真实生产服务。

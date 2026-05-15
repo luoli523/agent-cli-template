@@ -1,5 +1,7 @@
 # di-cli
 
+> **Language**: [English](README.md) | [中文](README.zh-CN.md)
+
 DI Toolkit for internal Data Infra developers, service owners, and on-call engineers.
 
 The project packages DI-specific AI assistant capabilities into one maintainable repository: skills, agents, MCP examples, service documentation, rules, contexts, and future Python CLI utilities. The first version is a scaffold that defines the contribution model and repository layout before real integrations are added.
