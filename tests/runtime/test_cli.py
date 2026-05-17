@@ -30,7 +30,9 @@ def test_main_manifest_emits_envelope(
     assert payload["ok"] is True
     assert payload["identity"] == "local"
     assert payload["data"]["version"] == __version__
-    assert payload["data"]["commands"] == []
+    # Shape only — individual subcommands assert their own presence in
+    # the manifest in their own test files (see tests/core/test_version.py).
+    assert isinstance(payload["data"]["commands"], list)
     # Stderr stays clean for success.
     assert captured.err == ""
 
