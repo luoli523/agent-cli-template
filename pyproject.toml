@@ -44,7 +44,9 @@ target-version = "py39"
 
 [tool.mypy]
 strict = true
-python_version = "3.9"
+# Check against 3.10 syntax (X | Y unions, etc.); runtime still supports 3.9
+# because all source files use `from __future__ import annotations`.
+python_version = "3.10"
 
 [tool.di-cli]
 status = "pre-alpha"
