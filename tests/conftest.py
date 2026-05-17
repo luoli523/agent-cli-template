@@ -1,9 +1,11 @@
-"""Shared fixtures for runtime tests.
+"""Shared fixtures for the whole tests/ tree.
 
-Both the command registry and the notice provider are module-level
-singletons. Tests that mutate them must run against a clean baseline,
-otherwise ordering would matter. This auto-fixture resets both before
-and after every runtime test.
+The command registry and the notice provider are module-level singletons
+that any test calling :func:`di.cli.main` will mutate (via subparser
+registration and envelope emission). To keep test ordering irrelevant,
+this auto-fixture resets both before and after every test.
+
+Contract tests don't touch this state, so the fixture is a no-op for them.
 """
 
 from __future__ import annotations
