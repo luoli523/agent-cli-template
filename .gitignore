@@ -1,14 +1,22 @@
-# Python virtual environments and package caches
-.venv/
+# Python
 __pycache__/
 *.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Tool caches
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 
-# Local DI Toolkit runtime state
-.di-toolkit/
-.di-cli/
+# Virtual envs
+.venv/
+venv/
+env/
+
+# Local secrets / runtime state
+.di/
 auth.json
 credentials.json
 *.local.json
@@ -16,7 +24,7 @@ credentials.json
 *.local.yaml
 *.local.yml
 
-# Editor and OS noise
-.DS_Store
+# IDE / OS
 .idea/
 .vscode/
+.DS_Store

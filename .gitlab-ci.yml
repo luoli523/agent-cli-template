@@ -1,36 +1,23 @@
-# GitLab CI for di-cli
-#
-# Runs the convention validator and pytest on every merge request.
-# Direct pushes to main are blocked via GitLab protected branch rules.
-# Mirrors the local commands documented in CONTRIBUTING.md so contributors
-# can reproduce CI failures locally.
+# Placeholder pipeline. Replaced with the real lint + typecheck + test +
+# validate pipeline in T11. See docs/decisions/0002-architecture-reset.md
+# for v0.2 reset context, and docs/specs/2026-05-15-di-cli-architecture.md
+# for the target architecture.
 
 stages:
-  - validate
+  - smoke
 
 default:
-  image: python:3.13-slim
+  image: alpine:3.20
   interruptible: true
 
-variables:
-  PIP_DISABLE_PIP_VERSION_CHECK: "1"
-  PIP_NO_CACHE_DIR: "1"
-  UV_CACHE_DIR: ".uv-cache"
-  UV_LINK_MODE: copy
-
-validate:
-  stage: validate
-  before_script:
-    - pip install uv
-    - uv sync --frozen --extra dev
+smoke:
+  stage: smoke
   script:
-    - bash scripts/validate.sh
-    - uv run --extra dev python -m pytest tests/ -q
-  cache:
-    key:
-      files:
-        - uv.lock
-    paths:
-      - .uv-cache/
+    - echo "Placeholder CI for v0.2 scaffold. Real pipeline lands in T11."
+    - test -L AGENTS.md
+    - readlink AGENTS.md | grep -qx CLAUDE.md
+    - test -f docs/specs/2026-05-15-di-cli-architecture.md
+    - test -f docs/decisions/0002-architecture-reset.md
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
