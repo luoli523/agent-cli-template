@@ -30,6 +30,11 @@ credentials.json
 *.local.yaml
 *.local.yml
 
+# Local artifacts from agent skills (guige-svg, baoyu-infographic, etc.)
+# These are working outputs, not source code.
+infographic/
+svg/
+
 # IDE / OS
 .idea/
 .vscode/
