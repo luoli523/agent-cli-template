@@ -1,6 +1,6 @@
 [project]
 name = "di-cli"
-version = "0.2.0.dev0"
+version = "0.2.0"
 description = "Operation layer between AI agents and the DI 开放平台."
 readme = "README.md"
 requires-python = ">=3.9"
