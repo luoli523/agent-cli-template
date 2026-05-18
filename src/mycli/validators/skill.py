@@ -36,13 +36,7 @@ _DEFAULT_SKILL_PREFIX = "mycli-"
 
 def _load_skill_prefix() -> str:
     """Read skill_prefix from pyproject [tool.agent-cli], fall back to default."""
-    try:
-        import tomllib  # type: ignore[import-untyped]
-    except ImportError:
-        try:
-            import tomli as tomllib  # type: ignore[import-not-found]
-        except ImportError:
-            return _DEFAULT_SKILL_PREFIX
+    import re
 
     import mycli
 
@@ -54,8 +48,10 @@ def _load_skill_prefix() -> str:
         candidate = parent / "pyproject.toml"
         if candidate.is_file():
             try:
-                data = tomllib.loads(candidate.read_text())
-                return str(data.get("tool", {}).get("agent-cli", {}).get("skill_prefix", _DEFAULT_SKILL_PREFIX))
+                text = candidate.read_text(encoding="utf-8")
+                m = re.search(r'^\s*skill_prefix\s*=\s*"([^"]+)"', text, re.MULTILINE)
+                if m:
+                    return m.group(1)
             except Exception:
                 return _DEFAULT_SKILL_PREFIX
     return _DEFAULT_SKILL_PREFIX
