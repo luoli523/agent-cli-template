@@ -115,3 +115,4 @@ F-001（看到 `exit 10` 自动加 `--yes` 重试）是已 seed 的样例。加 
 - 规范定义：[`docs/specs/2026-05-15-di-cli-architecture.zh-CN.md`](../specs/2026-05-15-di-cli-architecture.zh-CN.md) § 横切契约
 - 子团队接入流程：[`docs/explainers/onboarding-sub-team.zh-CN.md`](onboarding-sub-team.zh-CN.md)
 - Skill 模板：[`skills/di-skill-template/README.md`](../../skills/di-skill-template/README.md)
+- 命令参考（人类向命令目录）：[`docs/reference/commands.zh-CN.md`](../reference/commands.zh-CN.md)

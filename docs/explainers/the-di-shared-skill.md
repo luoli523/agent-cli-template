@@ -115,3 +115,4 @@ Four documents touch this area; the table makes their roles explicit so you can 
 - Normative protocol spec: [`docs/specs/2026-05-15-di-cli-architecture.md`](../specs/2026-05-15-di-cli-architecture.md) § Cross-cutting contracts
 - Sub-team onboarding flow: [`docs/explainers/onboarding-sub-team.md`](onboarding-sub-team.md)
 - Skill template: [`skills/di-skill-template/README.md`](../../skills/di-skill-template/README.md)
+- Command reference (human-readable catalogue): [`docs/reference/commands.md`](../reference/commands.md)

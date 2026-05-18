@@ -49,6 +49,8 @@ The schema is the source of truth for the auto-registered command tier (`di <ser
 - `scopes` (RAM scope names)
 - async handle declaration if applicable
 
+Look at [`docs/reference/commands.md`](../reference/commands.md) to see how the existing v0.2 infrastructure commands are catalogued — your service commands will eventually land in the "Service commands" section there.
+
 ### 3. Fork the skill template
 
 Follow [`skills/di-skill-template/README.md`](../../skills/di-skill-template/README.md):

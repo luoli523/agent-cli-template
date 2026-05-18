@@ -49,6 +49,8 @@ Schema 是自动注册命令层（`di <service> <resource> <method>`）的真相
 - `scopes`（RAM scope 名）
 - 异步 handle 声明（如适用）
 
+看一眼 [`docs/reference/commands.zh-CN.md`](../reference/commands.zh-CN.md) 了解 v0.2 基础命令现在是怎么编目的 —— 你的服务命令最终会落到那里的 "Service commands" 一节。
+
 ### 3. Fork skill 模板
 
 按 [`skills/di-skill-template/README.md`](../../skills/di-skill-template/README.md) 走：

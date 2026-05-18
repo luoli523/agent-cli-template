@@ -8,7 +8,7 @@ from di.validators.repo import validate_repo
 
 
 def _make_repo(tmp_path: Path, *, agents_symlink: bool = True, pyproject: bool = True,
-                skills_dir: bool = True, docs_subdirs: tuple[str, ...] = ("specs", "decisions", "explainers")
+                skills_dir: bool = True, docs_subdirs: tuple[str, ...] = ("specs", "decisions", "explainers", "reference")
                 ) -> Path:
     """Build a fake repo layout under tmp_path with knobs for each check."""
     repo = tmp_path / "repo"
@@ -74,7 +74,7 @@ def test_missing_skills_dir_is_warn(tmp_path: Path) -> None:
 
 
 def test_missing_docs_subdirs_is_warn(tmp_path: Path) -> None:
-    repo = _make_repo(tmp_path, docs_subdirs=("specs",))  # missing decisions + explainers
+    repo = _make_repo(tmp_path, docs_subdirs=("specs",))  # missing decisions + explainers + reference
     check = _check_by_name(validate_repo(repo), "repo/docs_layout")
     assert check.status == "warn"
-    assert set(check.detail["missing"]) == {"decisions", "explainers"}
+    assert set(check.detail["missing"]) == {"decisions", "explainers", "reference"}
