@@ -35,7 +35,7 @@ def repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     (r / "skills").mkdir()
     docs = r / "docs"
     docs.mkdir()
-    for sub in ("specs", "decisions", "explainers"):
+    for sub in ("specs", "decisions", "explainers", "reference"):
         (docs / sub).mkdir()
     monkeypatch.setenv("DI_SKILLS_DIR", str(r / "skills"))
     return r

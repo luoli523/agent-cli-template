@@ -20,7 +20,7 @@ from di.runtime import FAIL, OK, WARN, Check
 # tree assumes. Missing one is a warning rather than a hard failure
 # because a fresh contributor working in a worktree may not yet have
 # all of them.
-EXPECTED_DOCS_SUBDIRS: tuple[str, ...] = ("specs", "decisions", "explainers")
+EXPECTED_DOCS_SUBDIRS: tuple[str, ...] = ("specs", "decisions", "explainers", "reference")
 
 
 def validate_repo(repo_root: Path) -> list[Check]:
