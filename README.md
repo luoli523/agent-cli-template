@@ -6,7 +6,7 @@ di-cli is the operation layer between AI agents and the DI 开放平台. It wrap
 the platform's complex, scattered, permission-sensitive APIs into a uniform
 command system that machines can understand, plan, execute, and recover from.
 
-**Status: pre-alpha (v0.2 architecture reset, no functional capability yet).**
+**Status: v0.2 ready to ship — protocol surface, infrastructure commands, skill template, and CI all in place. Real service integrations roll in on top of this in subsequent releases.**
 
 ## Why di-cli exists
 
@@ -34,14 +34,16 @@ machine. Human DI engineers are a secondary consumer who fall back to
 | Layer | State |
 |-------|-------|
 | Architecture spec | ✅ Accepted |
-| Cross-cutting contracts (envelope / exit / risk / handle / `_notice`) | 🚧 In progress |
-| Core commands (`install`, `update`, `doctor`, `version`) | ⏳ Planned |
-| Skill validator | ⏳ Planned |
-| `di-shared` skill + skill template | ⏳ Planned |
-| Real service integrations | ⏳ Post-v1 |
+| Cross-cutting contracts (envelope / exit / risk / handle / `_notice`) | ✅ Shipped |
+| Core commands (`install`, `update`, `doctor`, `validate`, `version`) | ✅ Shipped |
+| Skill validator (`di validate`) | ✅ Shipped |
+| `di-shared` skill + skill template | ✅ Shipped |
+| CI (lint / typecheck / test / validate × Python 3.9, 3.13) | ✅ Shipped |
+| Real service integrations | ⏳ Post-v0.2 |
 
-The project is not installable yet. Track progress against the architecture
-spec and the v0.2.0 release tag.
+The v0.2.0 release packages the cross-cutting protocol surface and the
+infrastructure commands. Sub-team service integrations land on top of
+this foundation — see [`docs/explainers/onboarding-sub-team.md`](docs/explainers/onboarding-sub-team.md).
 
 ## Documentation
 

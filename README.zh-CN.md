@@ -5,7 +5,7 @@
 di-cli 是 AI Agent 与 DI 开放平台 之间的操作层。它把这套复杂、分散、权限敏感的
 API 包装成一套统一的命令体系，让机器能够理解、规划、执行、纠错。
 
-**状态：pre-alpha（v0.2 架构重置中，暂无可用功能）**。
+**状态：v0.2 即将发布 —— 核心契约 + 基础命令 + skill 模板 + CI 已 ship；真实服务接入将在 v0.2 之后逐步引入**。
 
 ## 为什么需要 di-cli
 
@@ -31,13 +31,15 @@ AI Agent。每条命令的输出、错误消息、退出码都被机器解析。
 | 层 | 状态 |
 |----|------|
 | 架构 spec | ✅ 已接受 |
-| 横切契约（envelope / exit / risk / handle / `_notice`） | 🚧 进行中 |
-| 核心命令（`install`、`update`、`doctor`、`version`） | ⏳ 计划中 |
-| Skill validator | ⏳ 计划中 |
-| `di-shared` skill 与 skill template | ⏳ 计划中 |
-| 真实服务接入 | ⏳ v1 之后 |
+| 横切契约（envelope / exit / risk / handle / `_notice`） | ✅ 已 ship |
+| 核心命令（`install`、`update`、`doctor`、`validate`、`version`） | ✅ 已 ship |
+| Skill validator（`di validate`） | ✅ 已 ship |
+| `di-shared` skill 与 skill 模板 | ✅ 已 ship |
+| CI（lint / typecheck / test / validate × Python 3.9, 3.13） | ✅ 已 ship |
+| 真实服务接入 | ⏳ v0.2 之后 |
 
-项目尚未可安装。进展跟着架构 spec 和 v0.2.0 release tag 推进。
+v0.2.0 release 打包横切协议层 + 基础设施命令。子团队的服务接入会建在这个底座之上 —— 见
+[`docs/explainers/onboarding-sub-team.zh-CN.md`](docs/explainers/onboarding-sub-team.zh-CN.md)。
 
 ## 文档
 
