@@ -168,18 +168,20 @@ Docs must not claim unfinished capabilities are available.
 
 ## Validation Expectations
 
-When validation scripts exist (lands in T8), run them before finishing changes:
+Before opening an MR, run the same checks CI runs (see `.gitlab-ci.yml`).
+Each step also has its own exit code so an AI agent can branch on the
+result the way ``di doctor`` and ``di validate`` envelopes intend:
 
 ```bash
-bash scripts/validate.sh
+uv run ruff check src tests   # lint
+uv run mypy --strict src      # types
+uv run pytest -q              # tests
+uv run di validate            # repo + skills conventions
 ```
 
-Until then, manually check:
-
-```bash
-test -L AGENTS.md && readlink AGENTS.md
-git status --short
-```
+`di validate` emits the standard envelope on stdout (healthy / degraded)
+or stderr (unhealthy). Walk the ``checks`` list when a step is not
+``ok`` — each entry carries its own ``hint``.
 
 ## Naming
 

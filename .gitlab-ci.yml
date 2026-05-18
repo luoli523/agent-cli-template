@@ -1,23 +1,86 @@
-# Placeholder pipeline. Replaced with the real lint + typecheck + test +
-# validate pipeline in T11. See docs/decisions/0002-architecture-reset.md
-# for v0.2 reset context, and docs/specs/2026-05-15-di-cli-architecture.md
-# for the target architecture.
+# di-cli CI — runs on every MR and on every push to main.
+#
+# Four parallel checks across two Python versions:
+#   - lint       (ruff)
+#   - typecheck  (mypy --strict)
+#   - test       (pytest)
+#   - validate   (di validate — repo + skills conventions)
+#
+# Python matrix is 3.9 (the floor declared in pyproject.toml's
+# requires-python) and 3.13 (current development version). Mypy
+# already pins ``python_version = "3.10"`` for syntax checking;
+# the runtime matrix here catches regressions the type-checker
+# would miss (stdlib API differences, behavior changes).
+#
+# uv handles dependency resolution and venv setup. The Docker image
+# is the official uv-bundled Python image, which avoids a pre-install
+# step for uv itself.
 
-stages:
-  - smoke
+stages: [check]
 
-default:
-  image: alpine:3.20
-  interruptible: true
+variables:
+  # Keep uv's package cache inside the project so GitLab's per-job
+  # cache picks it up. UV_NO_PROGRESS quietens download spinners that
+  # GitLab CI's log buffer renders as line-by-line noise.
+  UV_CACHE_DIR: "$CI_PROJECT_DIR/.uv-cache"
+  UV_NO_PROGRESS: "1"
+  PIP_NO_CACHE_DIR: "1"
 
-smoke:
-  stage: smoke
-  script:
-    - echo "Placeholder CI for v0.2 scaffold. Real pipeline lands in T11."
-    - test -L AGENTS.md
-    - readlink AGENTS.md | grep -qx CLAUDE.md
-    - test -f docs/specs/2026-05-15-di-cli-architecture.md
-    - test -f docs/decisions/0002-architecture-reset.md
+# Only run for MRs and pushes that land on main. Plain feature-branch
+# pushes (no MR yet) skip CI to keep pipeline-minutes use focused on
+# review-ready code.
+workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "main"
+    - when: never
+
+# Template that every job inherits. ``image`` is overridden per job
+# via PYTHON_VERSION; ``before_script`` performs the canonical setup
+# step documented in the spec (``uv sync --frozen --extra dev``).
+.uv-base:
+  stage: check
+  interruptible: true
+  image: ghcr.io/astral-sh/uv:python$PYTHON_VERSION-bookworm-slim
+  before_script:
+    - uv --version
+    - uv sync --frozen --extra dev
+  cache:
+    key: "uv-${PYTHON_VERSION}"
+    paths:
+      - .venv/
+      - .uv-cache/
+
+lint:
+  extends: .uv-base
+  parallel:
+    matrix:
+      - PYTHON_VERSION: ["3.9", "3.13"]
+  script:
+    - uv run ruff check src tests
+
+typecheck:
+  extends: .uv-base
+  parallel:
+    matrix:
+      - PYTHON_VERSION: ["3.9", "3.13"]
+  script:
+    - uv run mypy --strict src
+
+test:
+  extends: .uv-base
+  parallel:
+    matrix:
+      - PYTHON_VERSION: ["3.9", "3.13"]
+  script:
+    - uv run pytest -q
+
+validate:
+  extends: .uv-base
+  parallel:
+    matrix:
+      - PYTHON_VERSION: ["3.9", "3.13"]
+  script:
+    # Walks the actual skills/ directory and repo shape. Healthy
+    # exits 0; unhealthy (any check ``fail``) exits 5 — CI fails.
+    - uv run di validate
