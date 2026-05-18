@@ -6,7 +6,7 @@ to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-(empty — populated as work lands on main between releases)
+(empty — populated as work lands on main after v0.2.0)
 
 ## [0.2.0] — 2026-05-18
 
