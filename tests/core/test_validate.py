@@ -153,6 +153,38 @@ def test_validate_missing_skills_dir_is_unhealthy(
     )
 
 
+# --- live-repo gate ----------------------------------------------------------
+
+
+def test_validate_passes_against_live_repo_skills(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Live-repo regression gate.
+
+    Runs the validator against the *real* skills/ directory that ships
+    with this checkout. The point is to keep di-shared (and any future
+    bundled skill) honest: if someone edits the SKILL.md and breaks the
+    contract, this test goes red — same red CI consumers will see.
+
+    Uses the package walk-up resolution (no DI_SKILLS_DIR override) so
+    the test exercises exactly what end-users hit.
+    """
+    monkeypatch.delenv("DI_SKILLS_DIR", raising=False)
+    code = main(["validate", "--scope", "skills"])
+    captured = capsys.readouterr()
+    if code != 0:
+        # Surface the failing envelope to the test log so debugging
+        # doesn't require a separate `di validate` invocation.
+        raise AssertionError(
+            f"live skills/ failed validation:\n"
+            f"stdout={captured.out}\nstderr={captured.err}"
+        )
+    payload = json.loads(captured.out)
+    assert payload["data"]["overall"] == "healthy"
+    names = {c["name"] for c in payload["data"]["checks"]}
+    assert "skills/di-shared" in names
+
+
 # --- manifest registration ---------------------------------------------------
 
 
