@@ -31,7 +31,7 @@ are what you add on top.
 
 ## 5-step quickstart
 
-\`\`\`bash
+```bash
 # 1. Fork + clone
 gh repo create my-service-cli --template <this-repo-url> --clone
 cd my-service-cli
@@ -49,9 +49,9 @@ uv run mycli hello --name World
 # 5. Validate the repo
 uv run mycli validate
 # → {"ok": true, ...}
-\`\`\`
+```
 
-After that: delete \`src/mycli/core/hello.py\` (and its test), then add
+After that: delete `src/mycli/core/hello.py` (and its test), then add
 your first real service command.
 
 ---
@@ -61,7 +61,7 @@ your first real service command.
 | Capability | Status |
 |-----------|--------|
 | Real service integrations | You add those — see [Onboarding a service](docs/explainers/onboarding-a-service.md) |
-| \`mycli auth login\` / OAuth | Pending — design your credential provider chain first |
+| `mycli auth login` / OAuth | Pending — design your credential provider chain first |
 | MCP server pattern | Deferred — requires a reviewed ADR before code lands |
 | PyPI / internal index publish | Add your own release tooling |
 
@@ -69,7 +69,7 @@ your first real service command.
 
 ## Repository layout
 
-\`\`\`
+```
 agent-cli-template/
 ├── src/mycli/
 │   ├── contracts/     Envelope, exit codes, error types, handle, risk, _notice
@@ -79,7 +79,7 @@ agent-cli-template/
 │   └── validators/    SKILL.md frontmatter + repo shape checks
 ├── skills/
 │   ├── mycli-shared/         Runtime protocol every mycli-* skill inherits
-│   └── mycli-skill-template/ Fork starting point (NOT installed by \`mycli install\`)
+│   └── mycli-skill-template/ Fork starting point (NOT installed by `mycli install`)
 ├── docs/
 │   ├── specs/         Normative spec
 │   ├── decisions/     ADRs
@@ -89,18 +89,18 @@ agent-cli-template/
 ├── init.py            Rename wizard
 ├── CLAUDE.md          AI assistant instructions
 └── AGENTS.md          Symlink → CLAUDE.md (Codex + Claude Code share one file)
-\`\`\`
+```
 
 ---
 
 ## Running CI checks locally
 
-\`\`\`bash
+```bash
 uv run ruff check src tests   # lint
 uv run mypy --strict src      # types
 uv run pytest -q              # tests
 uv run mycli validate         # repo + skills conventions
-\`\`\`
+```
 
 ---
 
