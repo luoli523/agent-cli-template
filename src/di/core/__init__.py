@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import argparse
 
-from di.core import doctor, install, update, version
+from di.core import doctor, install, update, validate, version
 
 
 def register_subparsers(
@@ -30,4 +30,5 @@ def register_subparsers(
     doctor.register_subparser(subparsers, parent)
     install.register_subparser(subparsers, parent)
     update.register_subparser(subparsers, parent)
+    validate.register_subparser(subparsers, parent)
     version.register_subparser(subparsers, parent)

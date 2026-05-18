@@ -31,46 +31,29 @@ from __future__ import annotations
 import argparse
 import os
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from di.contracts import ErrDetail, Envelope, ErrorEnvelope, ErrorType, ExitCode, RiskClass
 from di.core import _sync
 from di.manifest import CommandSpec, register
-from di.runtime import LOCAL_IDENTITY, emit_error, emit_success
+from di.runtime import (
+    DEGRADED,
+    FAIL,
+    HEALTHY,
+    LOCAL_IDENTITY,
+    OK,
+    UNHEALTHY,
+    WARN,
+    Check,
+    emit_error,
+    emit_success,
+)
 
 NAME = "doctor"
 SUMMARY = "Diagnose di-cli setup and skill-sync state"
 
 MIN_PYTHON: tuple[int, int] = (3, 9)
-
-OK = "ok"
-WARN = "warn"
-FAIL = "fail"
-
-HEALTHY = "healthy"
-DEGRADED = "degraded"
-UNHEALTHY = "unhealthy"
-
-
-@dataclass(frozen=True)
-class Check:
-    """One named diagnostic with a status, a one-line message, and detail."""
-
-    name: str
-    status: str  # ok | warn | fail
-    message: str
-    detail: dict[str, Any] | None = None
-    hint: str | None = None
-
-    def to_dict(self) -> dict[str, Any]:
-        out: dict[str, Any] = {"name": self.name, "status": self.status, "message": self.message}
-        if self.detail is not None:
-            out["detail"] = self.detail
-        if self.hint is not None:
-            out["hint"] = self.hint
-        return out
 
 
 def register_subparser(
