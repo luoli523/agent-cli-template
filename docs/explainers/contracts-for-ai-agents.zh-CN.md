@@ -290,5 +290,6 @@ di-cli 真正的产品不是命令，**是这套协议本身**。
 - 正式定义：[`docs/specs/2026-05-15-di-cli-architecture.zh-CN.md`](../specs/2026-05-15-di-cli-architecture.zh-CN.md) § 横切契约
 - 决策背景：[`docs/decisions/0002-architecture-reset.md`](../decisions/0002-architecture-reset.md)
 - 面向 Agent 的教学 skill（英文）：[`skills/di-shared/SKILL.md`](../../skills/di-shared/SKILL.md)
+- 关于这个 skill 的资产层解读：[`the-di-shared-skill.zh-CN.md`](the-di-shared-skill.zh-CN.md)
 - 实现源码：`src/di/contracts/`
 - 配图源材料：[`infographic/di-cli-contracts-explained/`](../../infographic/di-cli-contracts-explained/)

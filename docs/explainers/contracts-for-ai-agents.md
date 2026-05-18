@@ -289,5 +289,6 @@ di-cli's real product is not the commands. **It is this protocol.**
 - Normative definitions: [`docs/specs/2026-05-15-di-cli-architecture.md`](../specs/2026-05-15-di-cli-architecture.md) § Cross-cutting contracts
 - Decision background: [`docs/decisions/0002-architecture-reset.md`](../decisions/0002-architecture-reset.md)
 - Agent-facing teaching skill: [`skills/di-shared/SKILL.md`](../../skills/di-shared/SKILL.md)
+- About that skill (artifact-level explainer): [`the-di-shared-skill.md`](the-di-shared-skill.md)
 - Implementation source: `src/di/contracts/`
 - Infographic source materials: [`infographic/di-cli-contracts-explained/`](../../infographic/di-cli-contracts-explained/)
