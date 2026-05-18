@@ -7,7 +7,7 @@ is fine; removing or renaming is a contract break.
 
 from __future__ import annotations
 
-import di.contracts as c
+import mycli.contracts as c
 
 
 EXPECTED_PUBLIC_API: frozenset[str] = frozenset({

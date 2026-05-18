@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from di.cli import build_parser
-from di.runtime.flags import VALID_FORMATS
+from mycli.cli import build_parser
+from mycli.runtime.flags import VALID_FORMATS
 
 
 def test_format_default_is_json() -> None:
@@ -28,7 +28,7 @@ def test_format_rejects_unknown_value() -> None:
 
 
 def test_as_flag_pass_through_arbitrary_role() -> None:
-    # No hardcoded role enum in core — RAM defines the set, di-cli is a
+    # No hardcoded role enum in core — RAM defines the set, mycli-cli is a
     # transparent conduit. Any non-empty string parses.
     parser = build_parser()
     for role in ("user", "service", "service-account-spark", "oncall"):

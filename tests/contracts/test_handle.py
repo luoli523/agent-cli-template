@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from di.contracts.envelope import Envelope
-from di.contracts.handle import STANDARD_ACTIONS, Handle
+from mycli.contracts.envelope import Envelope
+from mycli.contracts.handle import STANDARD_ACTIONS, Handle
 
 
 def test_standard_actions_match_spec() -> None:

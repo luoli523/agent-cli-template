@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from di.cli import main
+from mycli.cli import main
 
 
 VALID_SKILL_MD = """---
@@ -37,7 +37,7 @@ def repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     docs.mkdir()
     for sub in ("specs", "decisions", "explainers", "reference"):
         (docs / sub).mkdir()
-    monkeypatch.setenv("DI_SKILLS_DIR", str(r / "skills"))
+    monkeypatch.setenv("MYCLI_SKILLS_DIR", str(r / "skills"))
     return r
 
 
@@ -54,7 +54,7 @@ def _write_skill(repo: Path, name: str) -> Path:
 def test_validate_clean_repo_is_healthy(
     repo: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    _write_skill(repo, "di-shared")
+    _write_skill(repo, "mycli-shared")
     code = main(["validate"])
     captured = capsys.readouterr()
     assert code == 0
@@ -66,7 +66,7 @@ def test_validate_clean_repo_is_healthy(
 def test_validate_scope_skills_skips_repo_checks(
     repo: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    _write_skill(repo, "di-shared")
+    _write_skill(repo, "mycli-shared")
     code = main(["validate", "--scope", "skills"])
     captured = capsys.readouterr()
     assert code == 0
@@ -77,7 +77,7 @@ def test_validate_scope_skills_skips_repo_checks(
 def test_validate_scope_repo_skips_skills_checks(
     repo: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    _write_skill(repo, "di-shared")
+    _write_skill(repo, "mycli-shared")
     code = main(["validate", "--scope", "repo"])
     captured = capsys.readouterr()
     assert code == 0
@@ -91,11 +91,11 @@ def test_validate_scope_repo_skips_skills_checks(
 def test_validate_skill_missing_trigger_markers_is_unhealthy(
     repo: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    skill = repo / "skills" / "di-bad"
+    skill = repo / "skills" / "mycli-bad"
     skill.mkdir()
     # description lacks both TRIGGER markers — fail per contract
     (skill / "SKILL.md").write_text(
-        "---\nname: di-bad\ndescription: 'No markers here.'\n"
+        "---\nname: mycli-bad\ndescription: 'No markers here.'\n"
         "maintainer: [owner@example.com]\n---\n\n# di-bad\nbody\n"
     )
     code = main(["validate", "--scope", "skills"])
@@ -130,7 +130,7 @@ def test_validate_uses_explicit_skills_dir(
     # only walk the override and succeed.
     skills = tmp_path / "elsewhere" / "skills"
     skills.mkdir(parents=True)
-    monkeypatch.delenv("DI_SKILLS_DIR", raising=False)
+    monkeypatch.delenv("MYCLI_SKILLS_DIR", raising=False)
     code = main(["validate", "--scope", "skills", "--skills-dir", str(skills)])
     captured = capsys.readouterr()
     assert code == 0
@@ -142,7 +142,7 @@ def test_validate_missing_skills_dir_is_unhealthy(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    monkeypatch.setenv("DI_SKILLS_DIR", str(tmp_path / "absent"))
+    monkeypatch.setenv("MYCLI_SKILLS_DIR", str(tmp_path / "absent"))
     code = main(["validate", "--scope", "skills"])
     captured = capsys.readouterr()
     assert code == 5
@@ -162,14 +162,14 @@ def test_validate_passes_against_live_repo_skills(
     """Live-repo regression gate.
 
     Runs the validator against the *real* skills/ directory that ships
-    with this checkout. The point is to keep di-shared (and any future
+    with this checkout. The point is to keep mycli-shared (and any future
     bundled skill) honest: if someone edits the SKILL.md and breaks the
     contract, this test goes red — same red CI consumers will see.
 
-    Uses the package walk-up resolution (no DI_SKILLS_DIR override) so
+    Uses the package walk-up resolution (no MYCLI_SKILLS_DIR override) so
     the test exercises exactly what end-users hit.
     """
-    monkeypatch.delenv("DI_SKILLS_DIR", raising=False)
+    monkeypatch.delenv("MYCLI_SKILLS_DIR", raising=False)
     code = main(["validate", "--scope", "skills"])
     captured = capsys.readouterr()
     if code != 0:
@@ -182,7 +182,7 @@ def test_validate_passes_against_live_repo_skills(
     payload = json.loads(captured.out)
     assert payload["data"]["overall"] == "healthy"
     names = {c["name"] for c in payload["data"]["checks"]}
-    assert "skills/di-shared" in names
+    assert "skills/mycli-shared" in names
 
 
 # --- manifest registration ---------------------------------------------------

@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from di.contracts.error_type import ErrDetail, ErrorType
-from di.contracts.risk import RiskClass, RiskDetail
+from mycli.contracts.error_type import ErrDetail, ErrorType
+from mycli.contracts.risk import RiskClass, RiskDetail
 
 
 def test_error_type_values_match_spec() -> None:

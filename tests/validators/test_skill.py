@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from di.validators.skill import validate_skill, validate_skills_root
+from mycli.validators.skill import validate_skill, validate_skills_root
 
 
 VALID_SKILL_MD = """---
@@ -35,14 +35,14 @@ def _write_skill(root: Path, name: str, body: str | None = None) -> Path:
 
 
 def test_valid_skill_returns_ok(tmp_path: Path) -> None:
-    skill = _write_skill(tmp_path, "di-shared")
+    skill = _write_skill(tmp_path, "mycli-shared")
     check = validate_skill(skill)
     assert check.status == "ok"
-    assert check.name == "skills/di-shared"
+    assert check.name == "skills/mycli-shared"
 
 
 def test_skill_missing_skill_md_is_fail(tmp_path: Path) -> None:
-    skill = tmp_path / "di-incomplete"
+    skill = tmp_path / "mycli-incomplete"
     skill.mkdir()
     check = validate_skill(skill)
     assert check.status == "fail"
@@ -53,21 +53,21 @@ def test_skill_wrong_prefix_is_fail(tmp_path: Path) -> None:
     skill = _write_skill(tmp_path, "de-other")
     check = validate_skill(skill)
     assert check.status == "fail"
-    assert "di-" in check.message
+    assert "mycli-" in check.message
 
 
 def test_nested_skill_is_fail(tmp_path: Path) -> None:
-    outer = _write_skill(tmp_path, "di-outer")
-    inner = outer / "di-inner"
+    outer = _write_skill(tmp_path, "mycli-outer")
+    inner = outer / "mycli-inner"
     inner.mkdir()
-    (inner / "SKILL.md").write_text(VALID_SKILL_MD.format(name="di-inner"))
+    (inner / "SKILL.md").write_text(VALID_SKILL_MD.format(name="mycli-inner"))
     check = validate_skill(outer)
     assert check.status == "fail"
     assert "nested" in check.message
 
 
 def test_skill_with_references_subdir_is_ok(tmp_path: Path) -> None:
-    skill = _write_skill(tmp_path, "di-shared")
+    skill = _write_skill(tmp_path, "mycli-shared")
     refs = skill / "references"
     refs.mkdir()
     (refs / "workflow.md").write_text("# notes")
@@ -77,11 +77,11 @@ def test_skill_with_references_subdir_is_ok(tmp_path: Path) -> None:
 
 def test_skill_with_empty_body_is_fail(tmp_path: Path) -> None:
     body = (
-        "---\nname: di-shared\n"
+        "---\nname: mycli-shared\n"
         "description: 'TRIGGER when: x. DO NOT TRIGGER when: y.'\n"
         "maintainer: [owner@example.com]\n---\n\n   \n"
     )
-    skill = _write_skill(tmp_path, "di-shared", body=body)
+    skill = _write_skill(tmp_path, "mycli-shared", body=body)
     check = validate_skill(skill)
     assert check.status == "fail"
     assert "empty" in check.message or "H1" in check.message
@@ -89,11 +89,11 @@ def test_skill_with_empty_body_is_fail(tmp_path: Path) -> None:
 
 def test_skill_without_h1_is_fail(tmp_path: Path) -> None:
     body = (
-        "---\nname: di-shared\n"
+        "---\nname: mycli-shared\n"
         "description: 'TRIGGER when: x. DO NOT TRIGGER when: y.'\n"
         "maintainer: [owner@example.com]\n---\n\nNo heading here.\n"
     )
-    skill = _write_skill(tmp_path, "di-shared", body=body)
+    skill = _write_skill(tmp_path, "mycli-shared", body=body)
     check = validate_skill(skill)
     assert check.status == "fail"
     assert "H1" in check.message
@@ -102,13 +102,13 @@ def test_skill_without_h1_is_fail(tmp_path: Path) -> None:
 def test_skill_overlong_lines_is_warn_not_fail(tmp_path: Path) -> None:
     long_line = "x" * 250
     body = (
-        "---\nname: di-shared\n"
+        "---\nname: mycli-shared\n"
         "description: 'TRIGGER when: x. DO NOT TRIGGER when: y.'\n"
         "maintainer: [owner@example.com]\n---\n\n"
-        "# di-shared\n\n"
+        "# mycli-shared\n\n"
         f"{long_line}\n"
     )
-    skill = _write_skill(tmp_path, "di-shared", body=body)
+    skill = _write_skill(tmp_path, "mycli-shared", body=body)
     check = validate_skill(skill)
     assert check.status == "warn"
     assert "chars" in check.message
@@ -130,7 +130,7 @@ def test_validate_skills_root_empty_is_ok(tmp_path: Path) -> None:
 
 def test_validate_skills_root_stray_files_are_warn(tmp_path: Path) -> None:
     (tmp_path / "README.md").write_text("loose file")
-    _write_skill(tmp_path, "di-shared")
+    _write_skill(tmp_path, "mycli-shared")
     checks = validate_skills_root(tmp_path)
     root_check = next(c for c in checks if c.name == "skills_root")
     assert root_check.status == "warn"
@@ -138,12 +138,12 @@ def test_validate_skills_root_stray_files_are_warn(tmp_path: Path) -> None:
 
 
 def test_validate_skills_root_walks_every_skill(tmp_path: Path) -> None:
-    _write_skill(tmp_path, "di-shared")
-    _write_skill(tmp_path, "di-other")
+    _write_skill(tmp_path, "mycli-shared")
+    _write_skill(tmp_path, "mycli-other")
     checks = validate_skills_root(tmp_path)
     names = {c.name for c in checks}
-    assert "skills/di-shared" in names
-    assert "skills/di-other" in names
+    assert "skills/mycli-shared" in names
+    assert "skills/mycli-other" in names
 
 
 @pytest.mark.skip(reason="duplicate detection by directory name requires filesystem-level dup, which is impossible — covered by name-mismatch check instead")

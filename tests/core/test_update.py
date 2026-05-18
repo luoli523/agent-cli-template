@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from di.cli import main
+from mycli.cli import main
 
 
 @pytest.fixture
@@ -30,7 +30,7 @@ def home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 def source(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     s = tmp_path / "src-skills"
     s.mkdir()
-    monkeypatch.setenv("DI_SKILLS_DIR", str(s))
+    monkeypatch.setenv("MYCLI_SKILLS_DIR", str(s))
     return s
 
 
@@ -56,7 +56,7 @@ def test_update_with_no_source_succeeds_empty(
     home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    monkeypatch.setenv("DI_SKILLS_DIR", str(tmp_path / "does-not-exist"))
+    monkeypatch.setenv("MYCLI_SKILLS_DIR", str(tmp_path / "does-not-exist"))
     code = main(["update"])
     captured = capsys.readouterr()
     assert code == 0
@@ -69,19 +69,19 @@ def test_update_with_no_source_succeeds_empty(
 def test_update_installs_missing_skills_like_install_does(
     home: Path, source: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    skill = _make_skill(source, "di-shared")
+    skill = _make_skill(source, "mycli-shared")
     code = main(["update"])
     captured = capsys.readouterr()
     assert code == 0
     payload = json.loads(captured.out)
     assert len(payload["data"]["installed"]) == 2  # both targets
-    assert (home / ".claude" / "skills" / "di-shared").resolve() == skill
+    assert (home / ".claude" / "skills" / "mycli-shared").resolve() == skill
 
 
 def test_update_is_idempotent_with_no_orphans(
     home: Path, source: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    _make_skill(source, "di-shared")
+    _make_skill(source, "mycli-shared")
     main(["update"])  # first run installs
     capsys.readouterr()
     code = main(["update"])  # second run: all skip, no orphans
@@ -99,16 +99,16 @@ def test_update_is_idempotent_with_no_orphans(
 def test_update_removes_orphan_symlink(
     home: Path, source: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    # Simulate an older install that placed di-old, then was deleted upstream.
-    # Source today only has di-shared.
-    _make_skill(source, "di-shared")
-    stale_source = source / "di-old"
+    # Simulate an older install that placed mycli-old, then was deleted upstream.
+    # Source today only has mycli-shared.
+    _make_skill(source, "mycli-shared")
+    stale_source = source / "mycli-old"
     stale_source.mkdir()
     (stale_source / "SKILL.md").write_text("# stale\n")
     orphan_link = _make_managed_symlink(
-        home / ".claude" / "skills", "di-old", stale_source.resolve()
+        home / ".claude" / "skills", "mycli-old", stale_source.resolve()
     )
-    # Now remove the source for di-old (the upstream "deletion").
+    # Now remove the source for mycli-old (the upstream "deletion").
     (stale_source / "SKILL.md").unlink()
     stale_source.rmdir()
 
@@ -118,11 +118,11 @@ def test_update_removes_orphan_symlink(
     payload = json.loads(captured.out)
     removed = payload["data"]["removed"]
     assert len(removed) == 1
-    assert removed[0]["name"] == "di-old"
+    assert removed[0]["name"] == "mycli-old"
     assert removed[0]["target"] == "claude"
     assert not orphan_link.exists() and not orphan_link.is_symlink()
-    # di-shared still ends up installed.
-    assert (home / ".claude" / "skills" / "di-shared").is_symlink()
+    # mycli-shared still ends up installed.
+    assert (home / ".claude" / "skills" / "mycli-shared").is_symlink()
 
 
 def test_update_removes_orphan_with_broken_link(
@@ -130,18 +130,18 @@ def test_update_removes_orphan_with_broken_link(
 ) -> None:
     # An orphan whose target was already gone — readlink still tells us
     # the link used to point into our source tree, so it's still ours.
-    _make_skill(source, "di-shared")
+    _make_skill(source, "mycli-shared")
     claude_skills = home / ".claude" / "skills"
     claude_skills.mkdir(parents=True)
-    orphan = claude_skills / "di-old"
-    orphan.symlink_to(source / "di-old-already-gone", target_is_directory=True)
+    orphan = claude_skills / "mycli-old"
+    orphan.symlink_to(source / "mycli-old-already-gone", target_is_directory=True)
 
     code = main(["update", "--target", "claude"])
     captured = capsys.readouterr()
     assert code == 0
     payload = json.loads(captured.out)
     removed = payload["data"]["removed"]
-    assert any(r["name"] == "di-old" and r["reason"] == "orphan-broken" for r in removed)
+    assert any(r["name"] == "mycli-old" and r["reason"] == "orphan-broken" for r in removed)
     assert not orphan.is_symlink() and not orphan.exists()
 
 
@@ -150,16 +150,16 @@ def test_update_combined_install_skip_remove(
 ) -> None:
     # End-to-end re-sync: one skill stays (skip), one is new (install),
     # one is dropped upstream (remove).
-    _make_skill(source, "di-shared")  # will skip (already linked)
-    _make_skill(source, "di-new")     # will install
-    stale = source / "di-old"
+    _make_skill(source, "mycli-shared")  # will skip (already linked)
+    _make_skill(source, "mycli-new")     # will install
+    stale = source / "mycli-old"
     stale.mkdir()
     (stale / "SKILL.md").write_text("# stale\n")
     _make_managed_symlink(
-        home / ".claude" / "skills", "di-shared", source / "di-shared"
+        home / ".claude" / "skills", "mycli-shared", source / "mycli-shared"
     )
     _make_managed_symlink(
-        home / ".claude" / "skills", "di-old", stale.resolve()
+        home / ".claude" / "skills", "mycli-old", stale.resolve()
     )
     (stale / "SKILL.md").unlink()
     stale.rmdir()
@@ -171,9 +171,9 @@ def test_update_combined_install_skip_remove(
     names_installed = [a["name"] for a in payload["data"]["installed"]]
     names_skipped = [a["name"] for a in payload["data"]["skipped"]]
     names_removed = [a["name"] for a in payload["data"]["removed"]]
-    assert names_installed == ["di-new"]
-    assert names_skipped == ["di-shared"]
-    assert names_removed == ["di-old"]
+    assert names_installed == ["mycli-new"]
+    assert names_skipped == ["mycli-shared"]
+    assert names_removed == ["mycli-old"]
 
 
 def test_update_skips_template_and_doesnt_orphan_user_template_symlink(
@@ -184,10 +184,10 @@ def test_update_skips_template_and_doesnt_orphan_user_template_symlink(
     # it, even when a user has manually symlinked it into a target
     # directory. If we did remove it, we'd punish a user for using the
     # template for their own purposes.
-    template = _make_skill(source, "di-skill-template")
-    _make_skill(source, "di-real")
+    template = _make_skill(source, "mycli-skill-template")
+    _make_skill(source, "mycli-real")
     user_link = _make_managed_symlink(
-        home / ".claude" / "skills", "di-skill-template", template
+        home / ".claude" / "skills", "mycli-skill-template", template
     )
 
     code = main(["update", "--target", "claude"])
@@ -196,11 +196,11 @@ def test_update_skips_template_and_doesnt_orphan_user_template_symlink(
     payload = json.loads(captured.out)
     # Template not installed (forward sync skipped it)
     names_installed = [a["name"] for a in payload["data"]["installed"]]
-    assert "di-skill-template" not in names_installed
-    assert names_installed == ["di-real"]
+    assert "mycli-skill-template" not in names_installed
+    assert names_installed == ["mycli-real"]
     # Template not removed (reverse sync skipped it)
     names_removed = [a["name"] for a in payload["data"]["removed"]]
-    assert "di-skill-template" not in names_removed
+    assert "mycli-skill-template" not in names_removed
     assert user_link.is_symlink()  # untouched
 
 
@@ -213,7 +213,7 @@ def test_update_leaves_non_prefixed_symlinks_alone(
 ) -> None:
     # A user-created symlink named "my-personal-skill" (no di- prefix)
     # must never be in scope for orphan removal.
-    _make_skill(source, "di-shared")
+    _make_skill(source, "mycli-shared")
     claude_skills = home / ".claude" / "skills"
     claude_skills.mkdir(parents=True)
     user_link = claude_skills / "my-personal-skill"
@@ -235,12 +235,12 @@ def test_update_leaves_foreign_symlink_alone(
     # not ours to touch. install would classify it as a conflict only if
     # a same-named source skill existed; with no matching source, it just
     # sits there silently. update must respect the same rule.
-    _make_skill(source, "di-shared")
+    _make_skill(source, "mycli-shared")
     foreign = tmp_path / "foreign-target"
     foreign.mkdir()
     claude_skills = home / ".claude" / "skills"
     claude_skills.mkdir(parents=True)
-    foreign_link = claude_skills / "di-foreign"
+    foreign_link = claude_skills / "mycli-foreign"
     foreign_link.symlink_to(foreign.resolve(), target_is_directory=True)
 
     code = main(["update", "--target", "claude"])
@@ -255,13 +255,13 @@ def test_update_leaves_foreign_symlink_alone(
 def test_update_leaves_real_directory_alone(
     home: Path, source: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    # A real directory named di-foo with no matching source — user data,
+    # A real directory named mycli-foo with no matching source — user data,
     # not an orphan. install would conflict only with a matching name;
     # with no matching source, update simply leaves it.
-    _make_skill(source, "di-shared")
+    _make_skill(source, "mycli-shared")
     claude_skills = home / ".claude" / "skills"
     claude_skills.mkdir(parents=True)
-    user_dir = claude_skills / "di-foo"
+    user_dir = claude_skills / "mycli-foo"
     user_dir.mkdir()
     sentinel = user_dir / "personal-note.md"
     sentinel.write_text("mine")
@@ -283,17 +283,17 @@ def test_update_aborts_on_conflict_and_skips_orphan_removal(
     # Setup: one valid skill conflicts with a user directory, AND an
     # orphan exists at the same time. Atomic policy means NEITHER the
     # install nor the orphan removal happens until the conflict is fixed.
-    _make_skill(source, "di-shared")
+    _make_skill(source, "mycli-shared")
     claude_skills = home / ".claude" / "skills"
     claude_skills.mkdir(parents=True)
-    # Conflict: real directory under di-shared
-    user_dir = claude_skills / "di-shared"
+    # Conflict: real directory under mycli-shared
+    user_dir = claude_skills / "mycli-shared"
     user_dir.mkdir()
     # Orphan: managed-looking symlink that would otherwise be removed
-    stale = source / "di-old"
+    stale = source / "mycli-old"
     stale.mkdir()
     (stale / "SKILL.md").write_text("# stale\n")
-    orphan = _make_managed_symlink(claude_skills, "di-old", stale.resolve())
+    orphan = _make_managed_symlink(claude_skills, "mycli-old", stale.resolve())
     (stale / "SKILL.md").unlink()
     stale.rmdir()
 
@@ -312,12 +312,12 @@ def test_update_aborts_on_conflict_and_skips_orphan_removal(
 def test_update_dry_run_reports_but_makes_no_changes(
     home: Path, source: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    _make_skill(source, "di-shared")
-    stale = source / "di-old"
+    _make_skill(source, "mycli-shared")
+    stale = source / "mycli-old"
     stale.mkdir()
     (stale / "SKILL.md").write_text("# stale\n")
     orphan = _make_managed_symlink(
-        home / ".claude" / "skills", "di-old", stale.resolve()
+        home / ".claude" / "skills", "mycli-old", stale.resolve()
     )
     (stale / "SKILL.md").unlink()
     stale.rmdir()
@@ -331,7 +331,7 @@ def test_update_dry_run_reports_but_makes_no_changes(
     assert len(payload["data"]["installed"]) == 1
     assert len(payload["data"]["removed"]) == 1
     # …but neither the install nor the removal happened.
-    assert not (home / ".claude" / "skills" / "di-shared").exists()
+    assert not (home / ".claude" / "skills" / "mycli-shared").exists()
     assert orphan.is_symlink()
 
 
@@ -339,12 +339,12 @@ def test_update_target_filter_scopes_orphan_search(
     home: Path, source: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     # An orphan in ~/.codex must not be touched when --target claude.
-    _make_skill(source, "di-shared")
-    stale = source / "di-old"
+    _make_skill(source, "mycli-shared")
+    stale = source / "mycli-old"
     stale.mkdir()
     (stale / "SKILL.md").write_text("# stale\n")
     codex_orphan = _make_managed_symlink(
-        home / ".codex" / "skills", "di-old", stale.resolve()
+        home / ".codex" / "skills", "mycli-old", stale.resolve()
     )
     (stale / "SKILL.md").unlink()
     stale.rmdir()

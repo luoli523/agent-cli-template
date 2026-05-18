@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import json
 
-from di.contracts.envelope import Envelope, ErrorEnvelope, Meta
-from di.contracts.error_type import ErrDetail, ErrorType
+from mycli.contracts.envelope import Envelope, ErrorEnvelope, Meta
+from mycli.contracts.error_type import ErrDetail, ErrorType
 
 
 def test_envelope_minimal_only_identity() -> None:

@@ -1,8 +1,23 @@
 # Changelog
 
-All notable changes to di-cli are documented here. The format is based on
+All notable changes are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project adheres
 to [Semantic Versioning](https://semver.org/).
+
+## [Unreleased]
+
+## [0.1.0] — template baseline
+
+Initial release of agent-cli-template.
+
+Ships the frozen agent-facing protocol surface:
+- Envelope, exit codes, error types, handle, risk classification, `_notice` channel
+- Standard flags (`--format`, `--dry-run`, `--yes`, `--watch`, `--follow`, `--timeout`, `--page-*`)
+- Infrastructure commands: `install` / `update` / `doctor` / `validate` / `version` / `hello`
+- Skill validator (`mycli validate`) — enforces SKILL.md frontmatter + repo conventions
+- `mycli-shared` skill + `mycli-skill-template` fork starting point
+- `init.py` rename wizard — fork → rename → first command in ~1 hour
+- GitHub Actions CI + GitLab CI
 
 ## [Unreleased]
 

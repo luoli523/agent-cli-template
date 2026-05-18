@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from di.contracts.exit_code import ExitCode
+from mycli.contracts.exit_code import ExitCode
 
 
 def test_exit_code_values_match_spec() -> None:

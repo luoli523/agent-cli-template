@@ -6,8 +6,8 @@ import json
 
 import pytest
 
-from di import __version__
-from di.cli import main
+from mycli import __version__
+from mycli.cli import main
 
 
 def test_version_command_emits_envelope(

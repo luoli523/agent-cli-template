@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from di.contracts.risk import RiskClass, RiskDetail
+from mycli.contracts.risk import RiskClass, RiskDetail
 
 
 def test_risk_class_values_match_spec() -> None:

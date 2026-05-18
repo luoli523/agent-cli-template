@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from di.validators.repo import validate_repo
+from mycli.validators.repo import validate_repo
 
 
 def _make_repo(tmp_path: Path, *, agents_symlink: bool = True, pyproject: bool = True,

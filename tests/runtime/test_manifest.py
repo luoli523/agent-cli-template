@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from di import __version__
-from di.contracts import RiskClass
-from di.manifest import registry
+from mycli import __version__
+from mycli.contracts import RiskClass
+from mycli.manifest import registry
 
 
 def test_register_then_get() -> None:

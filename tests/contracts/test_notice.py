@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from di.contracts.notice import NoticeType
+from mycli.contracts.notice import NoticeType
 
 
 def test_notice_type_values_match_spec() -> None:

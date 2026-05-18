@@ -1,13 +1,13 @@
 [project]
-name = "di-cli"
-version = "0.3.0.dev0"
-description = "Operation layer between AI agents and the DI 开放平台."
+name = "mycli"
+version = "0.1.0"
+description = "Agent-facing CLI scaffold built from agent-cli-template."
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [
-    { name = "Data Infra", email = "li.luo@shopee.com" },
+    { name = "agent-cli-template contributors" },
 ]
-license = { text = "Proprietary" }
+license = { text = "MIT" }
 dependencies = [
     "PyYAML>=6.0.1",
 ]
@@ -22,20 +22,18 @@ dev = [
 ]
 
 [project.scripts]
-# The `di` script entry will resolve once src/di/cli.py defines `main` (T3).
-# Pre-T3, `pip install -e .` succeeds but invoking `di` raises ImportError.
-di = "di.cli:main"
+mycli = "mycli.cli:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/di"]
+packages = ["src/mycli"]
 
 [tool.hatch.build]
 include = [
-    "src/di/**",
+    "src/mycli/**",
     "skills/**",
 ]
 
@@ -49,6 +47,7 @@ strict = true
 # because all source files use `from __future__ import annotations`.
 python_version = "3.10"
 
-[tool.di-cli]
-status = "pre-alpha"
-spec = "docs/specs/2026-05-15-di-cli-architecture.md"
+[tool.agent-cli]
+# Skill prefix enforced by `mycli validate`. Forks should rename their
+# skills under skills/ to match this prefix after running init.py.
+skill_prefix = "mycli-"

@@ -18,7 +18,7 @@ from pathlib import Path
 
 import pytest
 
-from di.cli import main
+from mycli.cli import main
 
 
 @pytest.fixture
@@ -33,7 +33,7 @@ def home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 def source(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     s = tmp_path / "src-skills"
     s.mkdir()
-    monkeypatch.setenv("DI_SKILLS_DIR", str(s))
+    monkeypatch.setenv("MYCLI_SKILLS_DIR", str(s))
     return s
 
 
@@ -61,10 +61,10 @@ def _checks_by_name(payload: dict) -> dict[str, dict]:
 def test_doctor_all_healthy(
     home: Path, source: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    # Setup: install di-shared into both targets so sync_status = ok.
-    skill = _make_skill(source, "di-shared")
-    _make_managed_symlink(home / ".claude" / "skills", "di-shared", skill)
-    _make_managed_symlink(home / ".codex" / "skills", "di-shared", skill)
+    # Setup: install mycli-shared into both targets so sync_status = ok.
+    skill = _make_skill(source, "mycli-shared")
+    _make_managed_symlink(home / ".claude" / "skills", "mycli-shared", skill)
+    _make_managed_symlink(home / ".codex" / "skills", "mycli-shared", skill)
 
     code = main(["doctor"])
     captured = capsys.readouterr()
@@ -99,7 +99,7 @@ def test_doctor_warns_when_target_dirs_missing(
     home: Path, source: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     # No target dirs exist at all → both missing → warn → degraded.
-    skill = _make_skill(source, "di-shared")  # noqa: F841
+    skill = _make_skill(source, "mycli-shared")  # noqa: F841
 
     code = main(["doctor"])
     captured = capsys.readouterr()
@@ -116,8 +116,8 @@ def test_doctor_target_filter_scopes_dir_check(
     home: Path, source: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     # Only claude exists; --target claude → all green.
-    skill = _make_skill(source, "di-shared")
-    _make_managed_symlink(home / ".claude" / "skills", "di-shared", skill)
+    skill = _make_skill(source, "mycli-shared")
+    _make_managed_symlink(home / ".claude" / "skills", "mycli-shared", skill)
 
     code = main(["doctor", "--target", "claude"])
     captured = capsys.readouterr()
@@ -133,7 +133,7 @@ def test_doctor_fails_when_source_unresolved(
     home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    monkeypatch.setenv("DI_SKILLS_DIR", str(tmp_path / "does-not-exist"))
+    monkeypatch.setenv("MYCLI_SKILLS_DIR", str(tmp_path / "does-not-exist"))
 
     code = main(["doctor"])
     captured = capsys.readouterr()
@@ -156,7 +156,7 @@ def test_doctor_fails_when_source_unresolved(
 def test_doctor_reports_needs_install(
     home: Path, source: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    _make_skill(source, "di-shared")  # exists in source, not linked anywhere
+    _make_skill(source, "mycli-shared")  # exists in source, not linked anywhere
     (home / ".claude" / "skills").mkdir(parents=True)
     (home / ".codex" / "skills").mkdir(parents=True)
 
@@ -175,14 +175,14 @@ def test_doctor_reports_needs_install(
 def test_doctor_reports_orphan(
     home: Path, source: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    skill = _make_skill(source, "di-shared")
-    _make_managed_symlink(home / ".claude" / "skills", "di-shared", skill)
-    _make_managed_symlink(home / ".codex" / "skills", "di-shared", skill)
+    skill = _make_skill(source, "mycli-shared")
+    _make_managed_symlink(home / ".claude" / "skills", "mycli-shared", skill)
+    _make_managed_symlink(home / ".codex" / "skills", "mycli-shared", skill)
     # Add an orphan: managed-looking symlink whose source no longer exists
-    stale = source / "di-old"
+    stale = source / "mycli-old"
     stale.mkdir()
     (stale / "SKILL.md").write_text("# stale\n")
-    _make_managed_symlink(home / ".claude" / "skills", "di-old", stale.resolve())
+    _make_managed_symlink(home / ".claude" / "skills", "mycli-old", stale.resolve())
     (stale / "SKILL.md").unlink()
     stale.rmdir()
 
@@ -195,18 +195,18 @@ def test_doctor_reports_orphan(
     assert sync["status"] == "warn"
     orphans = sync["detail"]["orphans"]
     assert len(orphans) == 1
-    assert orphans[0]["name"] == "di-old"
+    assert orphans[0]["name"] == "mycli-old"
 
 
 def test_doctor_fails_on_conflict(
     home: Path, source: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    _make_skill(source, "di-shared")
+    _make_skill(source, "mycli-shared")
     claude_skills = home / ".claude" / "skills"
     claude_skills.mkdir(parents=True)
     (home / ".codex" / "skills").mkdir(parents=True)
-    # Real directory conflict at di-shared
-    (claude_skills / "di-shared").mkdir()
+    # Real directory conflict at mycli-shared
+    (claude_skills / "mycli-shared").mkdir()
 
     code = main(["doctor"])
     captured = capsys.readouterr()
@@ -224,14 +224,14 @@ def test_doctor_conflict_dominates_orphan_in_grade(
 ) -> None:
     # Setup both a conflict and an orphan; overall must be unhealthy
     # (conflict's fail beats orphan's warn).
-    _make_skill(source, "di-shared")
+    _make_skill(source, "mycli-shared")
     claude_skills = home / ".claude" / "skills"
     claude_skills.mkdir(parents=True)
-    (claude_skills / "di-shared").mkdir()  # conflict
-    stale = source / "di-old"
+    (claude_skills / "mycli-shared").mkdir()  # conflict
+    stale = source / "mycli-old"
     stale.mkdir()
     (stale / "SKILL.md").write_text("# stale\n")
-    _make_managed_symlink(claude_skills, "di-old", stale.resolve())
+    _make_managed_symlink(claude_skills, "mycli-old", stale.resolve())
     (stale / "SKILL.md").unlink()
     stale.rmdir()
 
@@ -250,13 +250,13 @@ def test_doctor_combined_warn_buckets(
 ) -> None:
     # One ok (already linked), one needs_install (new in source), one orphan
     # (gone from source). Should be a single warn with three populated buckets.
-    skill = _make_skill(source, "di-shared")
-    _make_skill(source, "di-new")
-    _make_managed_symlink(home / ".claude" / "skills", "di-shared", skill)
-    stale = source / "di-old"
+    skill = _make_skill(source, "mycli-shared")
+    _make_skill(source, "mycli-new")
+    _make_managed_symlink(home / ".claude" / "skills", "mycli-shared", skill)
+    stale = source / "mycli-old"
     stale.mkdir()
     (stale / "SKILL.md").write_text("# stale\n")
-    _make_managed_symlink(home / ".claude" / "skills", "di-old", stale.resolve())
+    _make_managed_symlink(home / ".claude" / "skills", "mycli-old", stale.resolve())
     (stale / "SKILL.md").unlink()
     stale.rmdir()
 
@@ -279,7 +279,7 @@ def test_doctor_combined_warn_buckets(
 def test_doctor_does_not_modify_filesystem(
     home: Path, source: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    _make_skill(source, "di-shared")
+    _make_skill(source, "mycli-shared")
     main(["doctor"])
     capsys.readouterr()
     # After doctor reported needs_install, install should still see those
@@ -297,7 +297,7 @@ def test_doctor_does_not_modify_filesystem(
 def test_doctor_pretty_format(
     home: Path, source: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    _make_skill(source, "di-shared")
+    _make_skill(source, "mycli-shared")
     code = main(["doctor", "--format", "pretty"])
     captured = capsys.readouterr()
     assert code == 0

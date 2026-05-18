@@ -1,4 +1,4 @@
-# di-cli CI — runs on every MR and on every push to main.
+# agent-cli-template CI — runs on every MR and on every push to main.
 #
 # Four parallel checks across two Python versions:
 #   - lint       (ruff)
@@ -83,4 +83,4 @@ validate:
   script:
     # Walks the actual skills/ directory and repo shape. Healthy
     # exits 0; unhealthy (any check ``fail``) exits 5 — CI fails.
-    - uv run di validate
+    - uv run mycli validate

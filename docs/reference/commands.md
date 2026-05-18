@@ -1,252 +1,148 @@
-# di-cli command reference
+# Command reference
 
-> **Language**: [English](commands.md) | [中文](commands.zh-CN.md)
-
-The catalogue of every command di-cli ships. v0.2 ships only the five infrastructure commands listed under "Infrastructure commands"; the "Service commands" section is the placeholder structure for future sub-team contributions.
-
-For machine-readable discovery, prefer `di --manifest`. This page is the human-readable companion — it adds the "when to use" / "what to expect" context the manifest cannot carry.
+The catalogue of every command this CLI ships. For machine-readable
+discovery, prefer `mycli --manifest`. This page adds the "when to use"
+context the manifest cannot carry.
 
 ## How to discover commands at runtime
 
 | Tool | Use when |
 |------|----------|
-| `di --manifest` | An AI agent needs a structured surface map of every registered command (JSON envelope). |
-| `di --help` | A human wants the top-level summary, including the standard flags. |
-| `di <command> --help` | A human or agent needs the flags and arguments of a specific command. |
+| `mycli --manifest` | Agent needs a structured surface map (JSON envelope). |
+| `mycli --help` | Human wants the top-level summary + standard flags. |
+| `mycli <command> --help` | Human or agent needs flags for a specific command. |
 
 ## Three-layer command architecture
 
-When a sub-team's service lands, it exposes capability in one or more of three layers (full rationale in [`docs/specs/2026-05-15-di-cli-architecture.md`](../specs/2026-05-15-di-cli-architecture.md) § Command architecture):
-
 | Layer | Shape | When |
 |-------|-------|------|
-| **Shortcut** | `di <service> +<verb>` | High-level agent-friendly operation; smart defaults; preferred when available. |
-| **Schema-compiled** | `di <service> <resource> <method>` | 1:1 with the service API; full parameter control. |
-| **Raw API** | `di api <service> <METHOD> <path>` | Escape hatch; same envelope rules apply. |
-
-Agents prefer the highest layer that fits the task; sub-teams choose which layers to populate per operation.
+| **Shortcut** | `mycli <service> +<verb>` | High-level, smart defaults; preferred when available. |
+| **Schema-compiled** | `mycli <service> <resource> <method>` | 1:1 with the service API; full parameter control. |
+| **Raw API** | `mycli api <service> <METHOD> <path>` | Escape hatch; same envelope rules apply. |
 
 ## Standard flags
 
-Every command accepts the cross-cutting flags below (defined in [`src/di/runtime/flags.py`](../../src/di/runtime/flags.py)). Not every flag has runtime behavior in v0.2 — placeholders are kept so AI agents do not need to relearn the flag set when async / paginated operations land.
+Every command accepts these cross-cutting flags
+(defined in [`src/mycli/runtime/flags.py`](../../src/mycli/runtime/flags.py)):
 
-| Flag | Value | Status in v0.2 |
-|------|-------|----------------|
-| `--format` | `json` (default), `pretty`, `table`, `ndjson`, `csv` | `json`/`pretty` implemented; the rest render as compact JSON. |
+| Flag | Value | Status |
+|------|-------|--------|
+| `--format` | `json` (default), `pretty`, `table`, `ndjson`, `csv` | `json`/`pretty` implemented; rest render as compact JSON. |
 | `--dry-run` | bool | Implemented by `install` / `update` / future service writes. |
-| `--yes` | bool | Wired; no v0.2 command currently has `high-risk-write` risk. |
-| `--as` | `<role>` | Accepted; no v0.2 command resolves identity (no real services yet). |
+| `--yes` | bool | Required for `high-risk-write` and `destructive-cost` commands. |
+| `--as` | `<role>` | Identity override (passed through to credential layer). |
 | `--profile` | `<name>` | Placeholder for multi-profile config. |
 | `--watch` | bool | Placeholder for read-side polling. |
 | `--follow` | bool | Placeholder for streamed long-running ops. |
-| `--timeout` | `<duration>` | Placeholder; future deadline enforcement returns exit 11. |
+| `--timeout` | `<duration>` | Placeholder; future deadline enforcement exits 11. |
 | `--page-all` | bool | Placeholder for auto-pagination. |
 | `--page-size` | `<N>` | Placeholder. |
 | `--page-limit` | `<N>` | Placeholder. |
 
-Standard convention: pass flags **after** the subcommand (`di version --format pretty`). The reverse order works for top-level flags only (`--manifest`, `--version`).
+Convention: pass flags **after** the subcommand (`mycli version --format pretty`).
 
 ---
 
-## Infrastructure commands (v0.2)
+## Infrastructure commands
 
-Listed in lifecycle order: how a typical user encounters them. All five operate on the local machine or on di-cli itself; none reaches a DI service yet.
+All operate on the local machine; none reaches an external service.
 
-### `di version`
+### `mycli hello`
 
-**Synopsis** — `di version [--format json|pretty]`
+**Synopsis** — `mycli hello --name <name> [--format json|pretty]`
 
-**Purpose** — Show CLI version, Python interpreter version, and host platform.
+**Purpose** — Demo command. Shows envelope/exit-code/--format in action.
+Delete this command once you've added your first real service command.
 
-**Risk** read · **Identity required** no · **Source** [`src/di/core/version.py`](../../src/di/core/version.py)
-
-**Behaviors**
-- Pure read; no side effects.
-- Always exits 0 on a built install.
+**Risk** read · **Identity required** no
 
 **Data shape**
 
 ```json
-{
-  "ok": true,
-  "identity": "local",
-  "data": {
-    "version": "0.2.0",
-    "python": "3.13.5",
-    "platform": "darwin"
-  }
-}
+{"ok": true, "identity": "local", "data": {"greeting": "Hello, World!"}}
 ```
-
-**See also** — `di --manifest` for the registered command catalogue including `version` itself.
 
 ---
 
-### `di install`
+### `mycli version`
 
-**Synopsis** — `di install [--target claude|codex|all] [--dry-run] [--format json|pretty]`
+**Synopsis** — `mycli version [--format json|pretty]`
 
-**Purpose** — Symlink `<repo>/skills/di-*/` into `~/.claude/skills/<name>` and `~/.codex/skills/<name>` so the bundled skills appear in AI tool directories.
+**Purpose** — Show CLI version, Python interpreter version, and host platform.
 
-**Risk** write · **Identity required** no · **Source** [`src/di/core/install.py`](../../src/di/core/install.py)
+**Risk** read · **Identity required** no
 
-**Behaviors**
-- **Zero-state ownership model**: a target entry is "managed by di" iff it is a symlink resolving into our source `skills/` tree. Real directories, files, and foreign symlinks are left untouched.
-- **Atomic conflict policy**: any conflict (real directory, foreign symlink) aborts the whole run with exit 2 and a structured error envelope. No partial success mode.
-- **Idempotent**: running again is a no-op when state matches.
-- **Excludes `di-skill-template`**: the template is a fork starting point, never installed.
-
-**Source resolution**: `DI_SKILLS_DIR` env var > walk up from `di.__file__` looking for a `pyproject.toml` sibling with `skills/`.
-
-**Data shape (success)**
+**Data shape**
 
 ```json
-{
-  "ok": true,
-  "identity": "local",
-  "data": {
-    "source": "/path/to/repo/skills",
-    "targets": {"claude": "/Users/.../.claude/skills", "codex": "..."},
-    "installed": [{"name": "di-shared", "target": "claude", "path": "..."}],
-    "skipped":   [],
-    "updated":   [],
-    "removed":   [],
-    "dry_run":   false
-  }
-}
+{"ok": true, "identity": "local", "data": {"version": "0.1.0", "python": "3.13.5", "platform": "darwin"}}
 ```
 
-**Data shape (conflict → error)**
-
-```json
-{
-  "ok": false,
-  "error": {
-    "type": "validation",
-    "message": "install aborted: 1 conflict(s) not managed by di",
-    "hint": "remove or rename the conflicting entry, then re-run `di install`",
-    "detail": {
-      "conflicts": [{"name": "di-shared", "reason": "real-directory", "path": "..."}]
-    }
-  }
-}
-```
-
-**See also** — [`di update`](#di-update) for the same flow plus orphan removal; [`di doctor`](#di-doctor) to inspect sync state without mutating.
-
 ---
 
-### `di update`
+### `mycli install`
 
-**Synopsis** — `di update [--target claude|codex|all] [--dry-run] [--format json|pretty]`
+**Synopsis** — `mycli install [--target claude|codex|all] [--dry-run]`
 
-**Purpose** — Re-sync skills (install missing + refresh stale + **remove orphans**). Run after `pipx upgrade di-cli` or `git pull` to bring the AI tool directories back in line with what ships under `skills/`.
+**Purpose** — Symlink `skills/mycli-*/` into `~/.claude/skills/` and
+`~/.codex/skills/`.
 
-**Risk** write · **Identity required** no · **Source** [`src/di/core/update.py`](../../src/di/core/update.py)
+**Risk** write · **Identity required** no
 
 **Behaviors**
-- Everything `di install` does, plus:
-- **Orphan removal**: a symlink is removed when it is (a) a symlink, (b) resolves into our source skills tree, (c) has the `di-` prefix, (d) has no matching source skill today, (e) is not in `EXCLUDED_FROM_INSTALL`. User-managed template symlinks and foreign symlinks are never touched.
-- Atomic conflict policy carries over from install — any conflict aborts both forward and reverse sync.
-
-**Data shape** — identical to `di install`; `removed` bucket is populated.
-
-**See also** — [`di install`](#di-install); [`di doctor`](#di-doctor).
+- Idempotent (re-run is a no-op when state matches).
+- Atomic conflict abort — any conflict exits 2 with a structured error.
+- Excludes `mycli-skill-template` (fork starting point, not a runtime skill).
 
 ---
 
-### `di doctor`
+### `mycli update`
 
-**Synopsis** — `di doctor [--target claude|codex|all] [--format json|pretty]`
+**Synopsis** — `mycli update [--target claude|codex|all] [--dry-run]`
 
-**Purpose** — Read-only health check of the local di-cli setup.
+**Purpose** — Re-sync skills: install missing + refresh stale + remove orphans.
+Run after upgrading the CLI or pulling new skills.
 
-**Risk** read · **Identity required** no · **Source** [`src/di/core/doctor.py`](../../src/di/core/doctor.py)
-
-**Behaviors**
-- Four checks run in order: `python`, `source`, `target_dirs`, `sync_status`.
-- Reduces to one of three grades — `healthy` (all `ok`), `degraded` (any `warn`), `unhealthy` (any `fail`).
-- **Exit code policy**: `healthy` / `degraded` exit 0 (envelope on stdout); `unhealthy` exits 5 (envelope on stderr). `degraded` is "works, worth fixing" — agents should mention it after the current task, not interrupt for it.
-
-**Data shape (success — healthy or degraded)**
-
-```json
-{
-  "ok": true,
-  "identity": "local",
-  "data": {
-    "overall": "healthy",
-    "checks": [
-      {"name": "python", "status": "ok", "message": "Python 3.13.5 satisfies >= 3.9"},
-      {"name": "source", "status": "ok", "message": "source skills/ resolved", "detail": {...}},
-      {"name": "target_dirs", "status": "ok", "message": "all target skill directories exist"},
-      {"name": "sync_status", "status": "ok", "message": "all skills in sync", "detail": {...}}
-    ]
-  }
-}
-```
-
-**Data shape (unhealthy → error)** — the same `checks` list, carried inside `error.detail`. Agents read the same key (`checks`) in both success and failure paths.
-
-**See also** — [`di validate`](#di-validate) — same envelope shape, different audit (authoring conventions vs runtime state).
+**Risk** write · **Identity required** no
 
 ---
 
-### `di validate`
+### `mycli doctor`
 
-**Synopsis** — `di validate [--scope all|skills|repo] [--skills-dir <path>] [--format json|pretty]`
+**Synopsis** — `mycli doctor [--target claude|codex|all]`
 
-**Purpose** — Audit skill authoring conventions and repo shape. Used by CI as the convention gate before merge.
+**Purpose** — Read-only health check of the local setup.
 
-**Risk** read · **Identity required** no · **Source** [`src/di/core/validate.py`](../../src/di/core/validate.py)
+**Risk** read · **Identity required** no
 
-**Behaviors**
-- **`--scope skills`** walks every directory under `skills/`, validating SKILL.md frontmatter + body and forbidding nested skills.
-- **`--scope repo`** runs four shape checks: AGENTS.md → CLAUDE.md symlink, pyproject.toml present, skills/ present, docs/{specs,decisions,explainers}/ present.
-- **`--scope all`** (default) runs both.
-- Same `healthy` / `degraded` / `unhealthy` grade as `doctor`; same exit-code policy.
-- Authoring conventions (required: `TRIGGER when:` / `DO NOT TRIGGER when:` markers; `di-` prefix; ≤ 1024-char `description`; H1 body heading; `maintainer` looks like emails) are enforced at fail level. Style (line length > 200) is warn.
-
-**Data shape** — identical envelope to `doctor`; `checks` list contains `skills/<name>` and `repo/*` entries.
-
-**See also** — [`di doctor`](#di-doctor); [`skills/di-skill-template/README.md`](../../skills/di-skill-template/README.md) for the compliance checklist authors run through before opening an MR.
+**Exit codes**: `healthy`/`degraded` → exit 0 (stdout); `unhealthy` → exit 5 (stderr).
 
 ---
 
-## Service commands (post-v0.2)
+### `mycli validate`
 
-**Empty in v0.2.** As sub-teams onboard, services appear here, organized by service family. Each entry follows the same card format as the infrastructure commands above.
+**Synopsis** — `mycli validate [--scope all|skills|repo] [--skills-dir <path>]`
 
-### Group A — Query / Compute engines
+**Purpose** — Audit skill authoring conventions and repo shape. Used as a CI gate.
 
-Future: `di spark`, `di flink`, `di presto`, `di livy`, `di starrocks`, `di kafka`, `di clickhouse`, `di hbase`, `di yarn`.
+**Risk** read · **Identity required** no
 
-Group A operations are jobs / queries with `submit → poll → logs → cancel` lifecycles. Long-running is the norm; commands return [handle envelopes](../explainers/contracts-for-ai-agents.md#5-handle-long-jobs-without-guessing) instead of inline results.
-
-### Group B — Platform services
-
-Future: `di datamap`, `di scheduler`, `di dqc`, `di sla`, `di diana`, `di datahub`, `di ram`, `di dataservice`.
-
-Group B operations are `lookup / decide / mutate / recover` lifecycles. Permission and lifecycle management dominate; RAM gates the others.
-
-Each service that lands ships some mix of shortcuts (`di <service> +<verb>`) and schema-compiled commands (`di <service> <resource> <method>`). The service's SKILL.md under `skills/di-<service>-*/` is the authoritative usage guide for AI agents.
+**`--scope skills`** — validates every `skills/` directory (frontmatter, body, prefix).
+**`--scope repo`** — validates repo shape (AGENTS.md symlink, pyproject, docs layout).
+**`--scope all`** — both (default).
 
 ---
 
-## Raw API escape hatch
+## Service commands (post-template)
 
-**Synopsis (future)** — `di api <service> <METHOD> <path> [--data ...] [--params ...]`
-
-Bypasses both shortcuts and schema-compiled commands. Same envelope, exit-code, and risk rules apply. Use only when neither layer covers the case — for example, when a service ships a brand-new endpoint that hasn't been folded into the schema yet.
-
-The raw API surface is not registered in `di --manifest` (it is open-ended by design), but its envelope output and error shape match every other di-cli command.
+Empty in the template. Add your service commands here as sub-teams onboard.
 
 ---
 
 ## See also
 
 - Protocol design: [`docs/explainers/contracts-for-ai-agents.md`](../explainers/contracts-for-ai-agents.md)
-- Normative spec: [`docs/specs/2026-05-15-di-cli-architecture.md`](../specs/2026-05-15-di-cli-architecture.md)
-- Agent-facing protocol reference: [`skills/di-shared/SKILL.md`](../../skills/di-shared/SKILL.md)
-- Sub-team onboarding: [`docs/explainers/onboarding-sub-team.md`](../explainers/onboarding-sub-team.md)
-- Skill template: [`skills/di-skill-template/README.md`](../../skills/di-skill-template/README.md)
+- Normative spec: [`docs/specs/2026-05-18-agent-cli-protocol.md`](../specs/2026-05-18-agent-cli-protocol.md)
+- Agent-facing protocol reference: [`skills/mycli-shared/SKILL.md`](../../skills/mycli-shared/SKILL.md)
+- Service onboarding: [`docs/explainers/onboarding-a-service.md`](../explainers/onboarding-a-service.md)
+- Skill template: [`skills/mycli-skill-template/README.md`](../../skills/mycli-skill-template/README.md)

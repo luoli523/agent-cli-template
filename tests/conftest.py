@@ -14,8 +14,8 @@ from collections.abc import Iterator
 
 import pytest
 
-from di.manifest import registry
-from di.runtime.output import default_notice_provider, set_notice_provider
+from mycli.manifest import registry
+from mycli.runtime.output import default_notice_provider, set_notice_provider
 
 
 @pytest.fixture(autouse=True)

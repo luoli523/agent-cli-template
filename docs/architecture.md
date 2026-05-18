@@ -1,9 +1,7 @@
-# di-cli Architecture
+# mycli Architecture
 
-The v0.2 architecture is captured in:
+The protocol and architecture are captured in:
 
-- [English](specs/2026-05-15-di-cli-architecture.md)
-- [中文](specs/2026-05-15-di-cli-architecture.zh-CN.md)
+- [Agent-CLI Protocol v1](specs/2026-05-18-agent-cli-protocol.md)
 
-For the rationale behind the v0.2 reset (and what was discarded from v0.1),
-see [decisions/0002-architecture-reset.md](decisions/0002-architecture-reset.md).
+For architectural decisions see the [decisions/](decisions/) directory.

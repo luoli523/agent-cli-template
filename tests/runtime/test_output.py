@@ -5,8 +5,8 @@ from __future__ import annotations
 import io
 import json
 
-from di.contracts import Envelope, ErrDetail, ErrorEnvelope, ErrorType, ExitCode
-from di.runtime.output import (
+from mycli.contracts import Envelope, ErrDetail, ErrorEnvelope, ErrorType, ExitCode
+from mycli.runtime.output import (
     LOCAL_IDENTITY,
     collect_notices,
     emit_error,
