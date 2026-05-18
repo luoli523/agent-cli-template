@@ -108,6 +108,23 @@ def test_install_ignores_non_skill_entries(
     assert names == ["di-valid"] * 2  # one per target
 
 
+def test_install_skips_skill_template(
+    home: Path, source: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # The fork-starting-point template ships under skills/ but must
+    # never be installed into AI tool directories — it teaches nothing
+    # at runtime. Enforced via EXCLUDED_FROM_INSTALL in _sync.py.
+    _make_skill(source, "di-skill-template")
+    _make_skill(source, "di-real")
+
+    code, payload, _ = _run(["install"], capsys)
+    assert code == 0
+    names = {a["name"] for a in payload["data"]["installed"]}
+    assert names == {"di-real"}
+    assert not (home / ".claude" / "skills" / "di-skill-template").exists()
+    assert not (home / ".codex" / "skills" / "di-skill-template").exists()
+
+
 # --- happy path ----------------------------------------------------------------
 
 

@@ -176,6 +176,34 @@ def test_update_combined_install_skip_remove(
     assert names_removed == ["di-old"]
 
 
+def test_update_skips_template_and_doesnt_orphan_user_template_symlink(
+    home: Path, source: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # The skill template ships under skills/ but is in
+    # EXCLUDED_FROM_INSTALL — neither install nor update should touch
+    # it, even when a user has manually symlinked it into a target
+    # directory. If we did remove it, we'd punish a user for using the
+    # template for their own purposes.
+    template = _make_skill(source, "di-skill-template")
+    _make_skill(source, "di-real")
+    user_link = _make_managed_symlink(
+        home / ".claude" / "skills", "di-skill-template", template
+    )
+
+    code = main(["update", "--target", "claude"])
+    captured = capsys.readouterr()
+    assert code == 0
+    payload = json.loads(captured.out)
+    # Template not installed (forward sync skipped it)
+    names_installed = [a["name"] for a in payload["data"]["installed"]]
+    assert "di-skill-template" not in names_installed
+    assert names_installed == ["di-real"]
+    # Template not removed (reverse sync skipped it)
+    names_removed = [a["name"] for a in payload["data"]["removed"]]
+    assert "di-skill-template" not in names_removed
+    assert user_link.is_symlink()  # untouched
+
+
 # --- what update refuses to touch ---------------------------------------------
 
 

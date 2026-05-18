@@ -31,6 +31,14 @@ from di.runtime import LOCAL_IDENTITY, emit_error, emit_success
 SKILL_PREFIX = "di-"
 SKILL_MANIFEST = "SKILL.md"
 
+# Skills that live under ``skills/`` for sub-team consumption but are
+# NOT meant to be installed into AI tool directories. Currently only
+# ``di-skill-template`` — it's a fork starting point, not a runtime
+# teaching aid. Excluded names are filtered out by both forward sync
+# (install / update never link them) and reverse sync (update never
+# treats them as orphans, even if a user manually symlinked one).
+EXCLUDED_FROM_INSTALL: frozenset[str] = frozenset({"di-skill-template"})
+
 # Keys are user-facing ``--target`` choices; values are home-relative
 # skill directories. Order is deterministic for envelope output.
 TARGETS: dict[str, Path] = {
@@ -131,12 +139,19 @@ def discover_skills(source: Path) -> list[Path]:
     skill candidates) is ignored — the validator (T8) is what eventually
     fails the build on malformed entries; sync's job is to be permissive
     and predictable.
+
+    Names in :data:`EXCLUDED_FROM_INSTALL` are filtered here so they
+    never enter the forward-sync pipeline. The validator still walks
+    them (they must self-validate) — installation is the orthogonal
+    decision.
     """
     out: list[Path] = []
     for entry in sorted(source.iterdir()):
         if not entry.is_dir():
             continue
         if not entry.name.startswith(SKILL_PREFIX):
+            continue
+        if entry.name in EXCLUDED_FROM_INSTALL:
             continue
         if not (entry / SKILL_MANIFEST).is_file():
             continue
@@ -259,6 +274,10 @@ def discover_orphans(
     2. Resolves into the current source skills tree.
     3. Its name starts with the ``di-`` prefix.
     4. There is no source skill with the same name today.
+    5. Its name is not in :data:`EXCLUDED_FROM_INSTALL` — skills the
+       project ships but does not auto-install (e.g. the skill
+       template). If a user manually symlinked one of these, update
+       leaves it alone; they put it there for a reason.
 
     Foreign symlinks (pointing outside our source tree) and real
     directories are not ours and never enter the orphan list — they
@@ -278,6 +297,8 @@ def discover_orphans(
             if not entry.name.startswith(SKILL_PREFIX):
                 continue
             if entry.name in current_skill_names:
+                continue
+            if entry.name in EXCLUDED_FROM_INSTALL:
                 continue
             try:
                 resolved = entry.resolve(strict=True)
