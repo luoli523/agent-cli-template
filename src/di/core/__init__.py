@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import argparse
 
-from di.core import install, update, version
+from di.core import doctor, install, update, version
 
 
 def register_subparsers(
@@ -27,6 +27,7 @@ def register_subparsers(
     lets ``di version --format pretty`` and ``di --format pretty version``
     both work — AI agents shouldn't have to learn flag ordering.
     """
+    doctor.register_subparser(subparsers, parent)
     install.register_subparser(subparsers, parent)
     update.register_subparser(subparsers, parent)
     version.register_subparser(subparsers, parent)
