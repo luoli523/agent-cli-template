@@ -6,7 +6,8 @@
 
 - [`docs/specs/2026-05-15-di-cli-architecture.zh-CN.md`](../specs/2026-05-15-di-cli-architecture.zh-CN.md) — di-cli 是什么
 - [`docs/explainers/contracts-for-ai-agents.zh-CN.md`](contracts-for-ai-agents.zh-CN.md) — 为什么 contracts 长这样
-- [`skills/di-shared/SKILL.md`](../../skills/di-shared/SKILL.md) — 每个 skill 共享的运行时协议（英文）
+- [`docs/explainers/the-di-shared-skill.zh-CN.md`](the-di-shared-skill.zh-CN.md) —— di-shared 这个资产是什么、你的 skill 怎么和它相处
+- [`skills/di-shared/SKILL.md`](../../skills/di-shared/SKILL.md) —— 每个 skill 共享的运行时协议（英文）
 
 如果这些概念还不熟，先读完它们。本文是**流程层**，盖在它们之上。
 

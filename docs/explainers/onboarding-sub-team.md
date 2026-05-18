@@ -6,6 +6,7 @@ This guide walks a DI sub-team from "we have a service we want to expose to AI a
 
 - [`docs/specs/2026-05-15-di-cli-architecture.md`](../specs/2026-05-15-di-cli-architecture.md) — what di-cli is
 - [`docs/explainers/contracts-for-ai-agents.md`](contracts-for-ai-agents.md) — why the contracts are shaped this way
+- [`docs/explainers/the-di-shared-skill.md`](the-di-shared-skill.md) — what the di-shared skill is and how your skill relates to it
 - [`skills/di-shared/SKILL.md`](../../skills/di-shared/SKILL.md) — the runtime protocol every skill inherits
 
 If those concepts are new, read those first. This guide is the *procedural* layer on top.
